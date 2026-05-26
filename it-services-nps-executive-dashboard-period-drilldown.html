@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IT Services NPS Executive Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #64748b;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --green: #16a34a;
+      --orange: #f59e0b;
+      --red: #dc2626;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .dashboard {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 22px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button, select {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    button:hover, select:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr)) auto;
+      gap: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      transition: 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 38px rgba(15, 23, 42, 0.11);
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 950;
+      letter-spacing: -0.055em;
+    }
+
+    .kpi-sub {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 850;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .wide-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .chart {
+      width: 100%;
+      height: 330px;
+    }
+
+    .chart.tall { height: 380px; }
+
+    .composition {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .summary-bar {
+      display: flex;
+      width: 100%;
+      height: 44px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      background: #f3f4f6;
+    }
+
+    .seg {
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 950;
+      min-width: 32px;
+    }
+
+    .promoter { background: var(--green); }
+    .passive { background: var(--orange); }
+    .detractor { background: var(--red); }
+
+    .count-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .count-box {
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      border-radius: 14px;
+    }
+
+    .count-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 7px;
+    }
+
+    .count-value {
+      font-size: 22px;
+      font-weight: 950;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .control-line {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: -4px 0 14px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .breadcrumb button {
+      padding: 8px 11px;
+      font-size: 13px;
+    }
+
+    .selected-banner {
+      margin-bottom: 22px;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .selected-banner strong {
+      font-size: 18px;
+    }
+
+    .placeholder {
+      margin-bottom: 22px;
+      border: 1px dashed #cbd5e1;
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 22px;
+      color: var(--muted);
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    tr:hover td { background: #f8fafc; }
+
+    .pill {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .positive { background: #dcfce7; color: #166534; }
+    .negative { background: #fee2e2; color: #991b1b; }
+
+    .mini-stack {
+      display: flex;
+      width: 170px;
+      height: 18px;
+      border-radius: 999px;
+      overflow: hidden;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 950;
+      line-height: 18px;
+      text-align: center;
+    }
+
+    .mini-stack span {
+      display: block;
+      min-width: 24px;
+    }
+
+
+    .chart-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      padding: 4px;
+      max-width: 100%;
+    }
+
+    .chart-nav button {
+      padding: 7px 10px;
+      font-size: 12px;
+      line-height: 1;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: #ffffff;
+      color: #334155;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+
+    .chart-nav button:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      background: #f1f5f9;
+      color: #94a3b8;
+      box-shadow: none;
+    }
+
+    .chart-nav button:disabled:hover {
+      transform: none;
+      background: #f1f5f9;
+      color: #94a3b8;
+      border-color: transparent;
+    }
+
+    .chart-nav button:hover {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .period-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 11px;
+      line-height: 1.1;
+      font-weight: 850;
+      max-width: 340px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+
+    .period-drilldown {
+      margin-bottom: 22px;
+      padding: 18px;
+    }
+
+    .period-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .period-title {
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: -0.02em;
+    }
+
+    .period-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 5px;
+      font-weight: 700;
+    }
+
+    .period-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .period-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .period-step {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    .period-step strong {
+      font-size: 13px;
+      color: #0f172a;
+    }
+
+    .period-step span {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .period-step.active {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+    }
+
+    .period-step.active strong,
+    .period-step.active span {
+      color: #1d4ed8;
+    }
+
+    .period-step:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .period-control-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .period-current {
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      color: #1d4ed8;
+      text-align: center;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 900;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mobile-toggle { display: none; }
+
+    .notice {
+      display: none;
+      margin-bottom: 18px;
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+      font-weight: 750;
+    }
+
+    @media (max-width: 1180px) {
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+      .grid, .wide-grid, .composition { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .dashboard { padding: 18px; }
+      .header { flex-direction: column; }
+      h1 { font-size: 27px; }
+      .mobile-toggle {
+        display: inline-flex;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 12px;
+      }
+      .filters {
+        display: none;
+        grid-template-columns: 1fr;
+      }
+      .filters.open { display: grid; }
+      .kpis, .count-grid { grid-template-columns: 1fr; }
+      .chart { height: 310px; }
+      .period-steps { grid-template-columns: 1fr; }
+      .period-control-row { grid-template-columns: 1fr; }
+      .period-header { flex-direction: column; }
+      .selected-banner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard">
+    <header class="header">
+      <div>
+        <h1>IT Services NPS Executive Dashboard</h1>
+        <div class="subtitle">Department-first drill-down into assignment group performance</div>
+        <div class="subtitle" id="activePeriodLabel" style="font-weight:800;color:#2563eb;">Active period: Last 6 Months • Monthly</div>
+      </div>
+      <div class="actions">
+        <button>Export PDF</button>
+        <button class="primary">Export Excel</button>
+      </div>
+    </header>
+
+    <div class="notice" id="cdnNotice">Charts could not load. This file needs internet access because ECharts is loaded from CDN.</div>
+
+    <button class="mobile-toggle" id="filterToggle">Show / Hide Filters</button>
+
+    <section class="filters" id="filters">
+      <select id="dateRange">
+        <option value="last6">Last 6 Months</option>
+        <option value="qtd">Current Quarter</option>
+        <option value="ytd">Year to Date</option>
+        <option value="year">Full Year</option>
+        <option value="month">Specific Month</option>
+      </select>
+      <select id="yearSelector">
+        <option value="2026">Year: 2026</option>
+        <option value="2025">Year: 2025</option>
+        <option value="2024">Year: 2024</option>
+        <option value="2023">Year: 2023</option>
+      </select>
+      <select id="monthSelector">
+        <option value="0">Month: Jan</option>
+        <option value="1">Month: Feb</option>
+        <option value="2">Month: Mar</option>
+        <option value="3">Month: Apr</option>
+        <option value="4" selected>Month: May</option>
+        <option value="5">Month: Jun</option>
+        <option value="6">Month: Jul</option>
+        <option value="7">Month: Aug</option>
+        <option value="8">Month: Sep</option>
+        <option value="9">Month: Oct</option>
+        <option value="10">Month: Nov</option>
+        <option value="11">Month: Dec</option>
+      </select>
+      <select id="granularity">
+        <option value="monthly">Monthly</option>
+        <option value="weekly">Weekly</option>
+        <option value="daily">Daily</option>
+      </select>
+      <select id="trendMetric">
+        <option value="nps">Trend: NPS</option>
+        <option value="promoters">Trend: Promoters %</option>
+        <option value="passives">Trend: Passives %</option>
+        <option value="detractors">Trend: Detractors %</option>
+      </select>
+      <button id="resetFilters">Reset / Back to Departments</button>
+    </section>
+
+    <section class="card period-drilldown">
+      <div class="period-header">
+        <div>
+          <div class="period-title">Period Explorer</div>
+          <div class="period-subtitle" id="periodExplorerSubtitle">Start from a year, drill into a month, then week, then day.</div>
+        </div>
+        <div class="period-actions">
+          <button id="periodBack">← Up one level</button>
+          <button id="periodToday" class="primary">Current period</button>
+        </div>
+      </div>
+
+      <div class="period-steps">
+        <button class="period-step active" data-level="year">
+          <strong>Year</strong>
+          <span id="yearStepLabel">2026</span>
+        </button>
+        <button class="period-step" data-level="month">
+          <strong>Month</strong>
+          <span id="monthStepLabel">Choose month</span>
+        </button>
+        <button class="period-step" data-level="week">
+          <strong>Week</strong>
+          <span id="weekStepLabel">Choose week</span>
+        </button>
+        <button class="period-step" data-level="day">
+          <strong>Day</strong>
+          <span id="dayStepLabel">Choose day</span>
+        </button>
+      </div>
+
+      <div class="period-control-row">
+        <button id="periodPrev">‹ Previous</button>
+        <div class="period-current" id="periodCurrentLabel">Full Year 2026</div>
+        <button id="periodNext">Next ›</button>
+      </div>
+    </section>
+
+    <section class="kpis">
+      <article class="card"><div class="kpi-label">Overall NPS</div><div class="kpi-value" id="kpiNps">+47</div><div class="kpi-sub" id="kpiDelta">+5 vs previous</div></article>
+      <article class="card"><div class="kpi-label">Average Score</div><div class="kpi-value" id="kpiScore">8.1/10</div><div class="kpi-sub">Raw score</div></article>
+      <article class="card"><div class="kpi-label">Response Count</div><div class="kpi-value" id="kpiResponses">12,450</div><div class="kpi-sub">Survey responses</div></article>
+      <article class="card"><div class="kpi-label">Response Rate</div><div class="kpi-value" id="kpiRate">38%</div><div class="kpi-sub">Ticket feedback rate</div></article>
+    </section>
+
+    <section class="composition">
+      <article class="card">
+        <div class="section-title">
+          <h2>NPS Composition</h2>
+          <span class="chart-nav">
+            <button data-chart-nav="composition" data-dir="-1">‹</button>
+            <span class="period-pill" id="compositionPeriodLabel">Current period</span>
+            <button data-chart-nav="composition" data-dir="1">›</button>
+          </span>
+        </div>
+        <p id="compositionPeriodCaption" style="margin:-6px 0 12px;color:#64748b;font-size:13px;font-weight:750;">Period: current selected range</p>
+        <div class="summary-bar">
+          <span class="seg promoter" id="summaryPromoter" style="width:63%">63%</span>
+          <span class="seg passive" id="summaryPassive" style="width:21%">21%</span>
+          <span class="seg detractor" id="summaryDetractor" style="width:16%">16%</span>
+        </div>
+        <div class="count-grid">
+          <div class="count-box"><div class="count-label">Promoters</div><div class="count-value" id="promoterCount">7,844</div></div>
+          <div class="count-box"><div class="count-label">Passives</div><div class="count-value" id="passiveCount">2,615</div></div>
+          <div class="count-box"><div class="count-label">Detractors</div><div class="count-value" id="detractorCount">1,991</div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="section-title"><h2>Promoter / Passive / Detractor Trend</h2><span class="chart-nav">
+            <button data-chart-nav="sentiment" data-dir="-1">‹</button>
+            <span class="period-pill" id="sentimentTrendLabel">Monthly view</span>
+            <button data-chart-nav="sentiment" data-dir="1">›</button>
+          </span></div>
+        <div id="sentimentTrendChart" class="chart"></div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="section-title">
+          <h2>Clickable Department Ranking</h2>
+          <span class="chart-nav">
+            <button data-chart-nav="departmentRanking" data-dir="-1">‹</button>
+            <span class="period-pill" id="departmentRankingLabel">Rank by NPS</span>
+            <button data-chart-nav="departmentRanking" data-dir="1">›</button>
+          </span>
+        </div>
+        <div class="control-line">
+          <select id="departmentRankingMetric">
+            <option value="nps">Rank by NPS</option>
+            <option value="score">Rank by Score /10</option>
+          </select>
+          <span class="hint">Click a department bar to reveal assignment groups.</span>
+        </div>
+        <div id="departmentRankingChart" class="chart"></div>
+      </article>
+
+      <article class="card">
+        <div class="section-title"><h2>Department Trend</h2><span class="chart-nav">
+            <button data-chart-nav="departmentTrend" data-dir="-1">‹</button>
+            <span class="period-pill" id="departmentTrendLabel">NPS by period</span>
+            <button data-chart-nav="departmentTrend" data-dir="1">›</button>
+          </span></div>
+        <div id="departmentTrendChart" class="chart"></div>
+      </article>
+    </section>
+
+    <section class="wide-grid">
+      <article class="card">
+        <div class="section-title"><h2>Department Sentiment Comparison</h2><span class="chart-nav">
+            <button data-chart-nav="departmentDistribution" data-dir="-1">‹</button>
+            <span class="period-pill" id="departmentDistributionLabel">Current period</span>
+            <button data-chart-nav="departmentDistribution" data-dir="1">›</button>
+          </span></div>
+        <div id="departmentDistributionChart" class="chart"></div>
+        <div class="legend">
+          <span><i class="dot" style="background:#16a34a"></i>Promoters</span>
+          <span><i class="dot" style="background:#f59e0b"></i>Passives</span>
+          <span><i class="dot" style="background:#dc2626"></i>Detractors</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="section-title"><h2>Executive Hotspots</h2><span class="chart-nav">
+            <button data-chart-nav="hotspot" data-dir="-1">‹</button>
+            <span class="period-pill" id="hotspotLabel">Current period</span>
+            <button data-chart-nav="hotspot" data-dir="1">›</button>
+          </span></div>
+        <div id="hotspotChart" class="chart"></div>
+      </article>
+    </section>
+
+    <section class="placeholder" id="assignmentPlaceholder">
+      Select a department from the ranking chart above to display assignment group analytics.
+    </section>
+
+    <section id="assignmentSection" class="hidden">
+      <div class="breadcrumb">
+        <button id="backButton">‹ to all departments</button>
+        <span>All Departments</span>
+        <span>›</span>
+        <strong id="selectedDepartmentCrumb">Infrastructure</strong>
+      </div>
+
+      <div class="selected-banner">
+        <div>
+          <strong id="selectedDepartmentTitle">Infrastructure</strong>
+          <div>Assignment group analytics for the selected department only.</div>
+        </div>
+        <button id="clearSelection">Clear selection</button>
+      </div>
+
+      <section class="wide-grid">
+        <article class="card">
+          <div class="section-title"><h2>Assignment Group Ranking</h2><span class="chart-nav">
+            <button data-chart-nav="assignmentRanking" data-dir="-1">‹</button>
+            <span class="period-pill" id="assignmentRankingLabel">Rank by NPS</span>
+            <button data-chart-nav="assignmentRanking" data-dir="1">›</button>
+          </span></div>
+          <div class="control-line">
+            <select id="assignmentRankingMetric">
+              <option value="nps">Rank by NPS</option>
+              <option value="score">Rank by Score /10</option>
+            </select>
+          </div>
+          <div id="assignmentRankingChart" class="chart tall"></div>
+        </article>
+
+        <article class="card">
+          <div class="section-title"><h2>Assignment Group Sentiment Comparison</h2><span class="chart-nav">
+              <button data-chart-nav="assignmentDistribution" data-dir="-1">‹</button>
+              <span class="period-pill" id="assignmentDistributionLabel">Current period</span>
+              <button data-chart-nav="assignmentDistribution" data-dir="1">›</button>
+            </span></div>
+          <div id="assignmentDistributionChart" class="chart tall"></div>
+        </article>
+      </section>
+
+      <section class="wide-grid">
+        <article class="card">
+          <div class="section-title"><h2>Assignment Group Trend</h2><span class="chart-nav">
+            <button data-chart-nav="assignmentTrend" data-dir="-1">‹</button>
+            <span class="period-pill" id="assignmentTrendLabel">Selected department groups</span>
+            <button data-chart-nav="assignmentTrend" data-dir="1">›</button>
+          </span></div>
+          <div id="assignmentTrendChart" class="chart"></div>
+        </article>
+
+        <article class="card">
+          <div class="section-title"><h2>Promoter Leaders / Detractor Risks</h2><span class="chart-nav">
+              <button data-chart-nav="assignmentRisk" data-dir="-1">‹</button>
+              <span class="period-pill" id="assignmentRiskLabel">Current period</span>
+              <button data-chart-nav="assignmentRisk" data-dir="1">›</button>
+            </span></div>
+          <div id="assignmentRiskChart" class="chart"></div>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="section-title"><h2>Assignment Group Detail</h2><span id="tableLabel">Selected department</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Assignment Group</th>
+                <th>Score</th>
+                <th>NPS</th>
+                <th>Previous NPS</th>
+                <th>Change</th>
+                <th>Responses</th>
+                <th>Promoters</th>
+                <th>Passives</th>
+                <th>Detractors</th>
+                <th>Mix</th>
+              </tr>
+            </thead>
+            <tbody id="detailTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    if (!window.echarts) document.getElementById('cdnNotice').style.display = 'block';
+
+
+    function formatMonth(date) {
+      return date.toLocaleString('en-GB', { month: 'short', year: 'numeric' });
+    }
+
+    function formatDay(date) {
+      return date.toLocaleString('en-GB', { day: 'numeric', month: 'short' });
+    }
+
+    function formatFullDay(date) {
+      return date.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function formatFullMonth(date) {
+      return date.toLocaleString('en-GB', { month: 'short', year: 'numeric' });
+    }
+
+    function addDays(date, days) {
+      const copy = new Date(date);
+      copy.setDate(copy.getDate() + days);
+      return copy;
+    }
+
+    function addMonths(date, months) {
+      const copy = new Date(date);
+      copy.setMonth(copy.getMonth() + months);
+      return copy;
+    }
+
+    function startOfWeek(date) {
+      const copy = new Date(date);
+      const day = copy.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      copy.setDate(copy.getDate() + diff);
+      copy.setHours(0, 0, 0, 0);
+      return copy;
+    }
+
+    function endOfWeek(date) {
+      return addDays(startOfWeek(date), 6);
+    }
+
+    function sameOrFuturePeriod() {
+      const today = new Date();
+      if (periodState.level === 'year') return periodState.year >= today.getFullYear();
+      if (periodState.level === 'month') return periodState.year >= today.getFullYear() && periodState.month >= today.getMonth();
+      if (periodState.level === 'week') return endOfWeek(periodState.weekStart || today) >= today;
+      return periodState.day >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    }
+
+    function monthName(month) {
+      return new Date(periodState.year, month, 1).toLocaleString('en-GB', { month: 'long' });
+    }
+
+    function getWindowConfig(chartKey = activeChartKey) {
+      const gran = document.getElementById('granularity').value;
+      const today = new Date();
+      const offset = chartOffsets[chartKey] || 0;
+
+      let anchor;
+
+      if (periodState.level === 'year') {
+        anchor = new Date(periodState.year + offset, 11, 31);
+        if (periodState.year + offset === today.getFullYear()) anchor = today;
+        return { type: 'monthly', count: 12, end: anchor };
+      }
+
+      if (periodState.level === 'month') {
+        anchor = new Date(periodState.year, periodState.month + offset + 1, 0);
+        if (anchor.getFullYear() === today.getFullYear() && anchor.getMonth() === today.getMonth()) anchor = today;
+        return gran === 'daily'
+          ? { type: 'daily', count: Math.min(31, anchor.getDate()), end: anchor }
+          : { type: 'weekly', count: 5, end: anchor };
+      }
+
+      if (periodState.level === 'week') {
+        const start = periodState.weekStart || startOfWeek(new Date(periodState.year, periodState.month, 1));
+        anchor = addDays(start, 6 + offset * 7);
+        if (anchor > today) anchor = today;
+        return { type: 'daily', count: 7, end: anchor };
+      }
+
+      anchor = addDays(periodState.day, offset);
+      if (anchor > today) anchor = today;
+      return { type: 'daily', count: 1, end: anchor };
+    }
+
+    function labels(chartKey = activeChartKey) {
+      const cfg = getWindowConfig(chartKey);
+      if (cfg.type === 'monthly') {
+        const result = [];
+        for (let i = cfg.count - 1; i >= 0; i--) {
+          result.push(formatMonth(addMonths(cfg.end, -i)));
+        }
+        return result;
+      }
+
+      if (cfg.type === 'weekly') {
+        const result = [];
+        const lastWeekStart = addDays(cfg.end, -6);
+        for (let i = cfg.count - 1; i >= 0; i--) {
+          const start = addDays(lastWeekStart, -7 * i);
+          const end = addDays(start, 6);
+          result.push(`${formatDay(start)}–${formatDay(end)}`);
+        }
+        return result;
+      }
+
+      const result = [];
+      for (let i = cfg.count - 1; i >= 0; i--) {
+        result.push(formatDay(addDays(cfg.end, -i)));
+      }
+      return result;
+    }
+
+    function fullPeriodRange(chartKey = activeChartKey) {
+      const cfg = getWindowConfig(chartKey);
+
+      if (cfg.type === 'monthly') {
+        const start = addMonths(cfg.end, -(cfg.count - 1));
+        return `${formatFullMonth(start)} → ${formatFullMonth(cfg.end)}`;
+      }
+
+      if (cfg.type === 'weekly') {
+        const lastWeekStart = addDays(cfg.end, -6);
+        const start = addDays(lastWeekStart, -7 * (cfg.count - 1));
+        return `${formatFullDay(start)} → ${formatFullDay(cfg.end)}`;
+      }
+
+      const start = addDays(cfg.end, -(cfg.count - 1));
+      return `${formatFullDay(start)} → ${formatFullDay(cfg.end)}`;
+    }
+
+    function quarterStart(date) {
+      const quarterMonth = Math.floor(date.getMonth() / 3) * 3;
+      return new Date(date.getFullYear(), quarterMonth, 1);
+    }
+
+    function compositionWindow() {
+      const today = new Date();
+      const offset = chartOffsets.composition || 0;
+
+      if (periodState.level === 'year') {
+        const year = periodState.year + offset;
+        const start = new Date(year, 0, 1);
+        let end = new Date(year, 11, 31);
+        if (year === today.getFullYear()) end = today;
+        return { start, end, label: `Full Year ${year}` };
+      }
+
+      if (periodState.level === 'month') {
+        const base = new Date(periodState.year, periodState.month + offset, 1);
+        const start = new Date(base.getFullYear(), base.getMonth(), 1);
+        let end = new Date(base.getFullYear(), base.getMonth() + 1, 0);
+        if (base.getFullYear() === today.getFullYear() && base.getMonth() === today.getMonth()) end = today;
+        return { start, end, label: base.toLocaleString('en-GB', { month: 'long', year: 'numeric' }) };
+      }
+
+      if (periodState.level === 'week') {
+        const start = addDays(periodState.weekStart || startOfWeek(new Date()), (chartOffsets.composition || 0) * 7);
+        let end = addDays(start, 6);
+        if (end > today) end = today;
+        return { start, end, label: `Week of ${formatFullDay(start)}` };
+      }
+
+      const day = addDays(periodState.day, chartOffsets.composition || 0);
+      return { start: day, end: day, label: formatFullDay(day) };
+    }
+
+    function compositionPeriodTitle() {
+      const win = compositionWindow();
+      return `${win.label} • ${formatFullDay(win.start)} → ${formatFullDay(win.end)}`;
+    }
+
+    function periodTitle(chartKey = activeChartKey) {
+      const dateRange = document.getElementById('dateRange');
+      const granularity = document.getElementById('granularity');
+      return `${dateRange.options[dateRange.selectedIndex].text} • ${granularity.options[granularity.selectedIndex].text} • ${fullPeriodRange(chartKey)}`;
+    }
+
+    function fitData(data, chartKey = activeChartKey) {
+      const target = labels(chartKey).length;
+      if (data.length === target) return data;
+      if (data.length > target) return data.slice(0, target);
+      const copy = [...data];
+      while (copy.length < target) copy.push(copy[copy.length - 1] ?? 0);
+      return copy;
+    }
+
+    function stepLabel() {
+      const gran = document.getElementById('granularity').value;
+      const range = document.getElementById('dateRange').value;
+      if (range === 'year') return 'year';
+      if (range === 'month') return 'month';
+      if (gran === 'daily') return '14-day window';
+      if (gran === 'weekly') return '12-week window';
+      if (gran === 'monthly') {
+        if (range === 'qtd') return 'quarter window';
+        if (range === 'ytd') return 'year window';
+        return '6-month window';
+      }
+      return 'period';
+    }
+
+    function setChartContext(chartKey) {
+      activeChartKey = chartKey;
+    }
+
+    function chartLabels(chartKey) {
+      return labels(chartKey);
+    }
+
+    function chartPeriodTitle(chartKey) {
+      const granText = document.getElementById('granularity').options[document.getElementById('granularity').selectedIndex].text;
+      return `${granText} • ${fullPeriodRange(chartKey)}`;
+    }
+
+    function canNavigateForward(key) {
+      if ((chartOffsets[key] || 0) < 0) return true;
+      return false;
+    }
+
+    function updateChartNavTooltips() {
+      document.querySelectorAll('[data-chart-nav]').forEach(button => {
+        const key = button.dataset.chartNav;
+        const dir = Number(button.dataset.dir || 0);
+        const action = dir < 0 ? 'Previous' : 'Next';
+
+        button.title = `${action} ${stepLabel()} for this chart`;
+        button.setAttribute('aria-label', `${action} ${stepLabel()} for this chart`);
+
+        // Do not allow navigation into future periods beyond the current day/month/week.
+        if (dir > 0) {
+          button.disabled = !canNavigateForward(key);
+        } else {
+          button.disabled = false;
+        }
+      });
+    }
+
+
+    function currentPeriodShift(chartKey = activeChartKey) {
+      const year = Number(document.getElementById('yearSelector')?.value || new Date().getFullYear());
+      const month = Number(document.getElementById('monthSelector')?.value || new Date().getMonth());
+      const range = document.getElementById('dateRange')?.value || 'last6';
+      const offset = chartOffsets[chartKey] || 0;
+
+      // Deterministic demo shift so historical navigation changes data realistically.
+      let effectiveYear = year;
+      let effectiveMonth = month;
+
+      if (chartKey === 'composition') {
+        const win = compositionWindow();
+        effectiveYear = win.end.getFullYear();
+        effectiveMonth = win.end.getMonth();
+      }
+
+      const yearShift = (effectiveYear - new Date().getFullYear()) * 3;
+      const monthShift = (range === 'month' || chartKey === 'composition') ? (effectiveMonth - new Date().getMonth()) * 0.8 : 0;
+      const navShift = offset * -2.2;
+      const rangeShift = range === 'year' ? -1 : range === 'month' ? 1.5 : range === 'qtd' ? 0.5 : 0;
+
+      return yearShift + monthShift + navShift + rangeShift;
+    }
+
+    function adjustedValue(value, key = 'nps', chartKey = activeChartKey, index = 0) {
+      const wave = ((index % 4) - 1.5) * 0.9;
+      const shift = currentPeriodShift(chartKey) + wave;
+
+      if (key === 'score') {
+        return Math.max(0, Math.min(10, Number((value + shift / 12).toFixed(1))));
+      }
+
+      if (key === 'promoters') {
+        return Math.max(0, Math.min(100, Math.round(value + shift)));
+      }
+
+      if (key === 'passives') {
+        return Math.max(0, Math.min(100, Math.round(value - shift / 2)));
+      }
+
+      if (key === 'detractors') {
+        return Math.max(0, Math.min(100, Math.round(value - shift)));
+      }
+
+      return Math.max(-100, Math.min(100, Math.round(value + shift)));
+    }
+
+    function adjustedSeries(data, key = 'nps', chartKey = activeChartKey) {
+      return fitData(data, chartKey).map((value, index) => adjustedValue(value, key, chartKey, index));
+    }
+
+    function adjustedDepartment(dept, chartKey = activeChartKey) {
+      const promoters = adjustedValue(dept.promoters, 'promoters', chartKey);
+      const detractors = adjustedValue(dept.detractors, 'detractors', chartKey);
+      let passives = 100 - promoters - detractors;
+      if (passives < 0) passives = Math.max(0, adjustedValue(dept.passives, 'passives', chartKey));
+      return {
+        ...dept,
+        score: adjustedValue(dept.score, 'score', chartKey),
+        nps: promoters - detractors,
+        previous: adjustedValue(dept.previous, 'nps', chartKey) - 2,
+        promoters,
+        passives,
+        detractors
+      };
+    }
+
+    function adjustedGroup(group, chartKey = activeChartKey) {
+      const promoters = adjustedValue(group.promoters, 'promoters', chartKey);
+      const detractors = adjustedValue(group.detractors, 'detractors', chartKey);
+      let passives = 100 - promoters - detractors;
+      if (passives < 0) passives = Math.max(0, adjustedValue(group.passives, 'passives', chartKey));
+      return {
+        ...group,
+        score: adjustedValue(group.score, 'score', chartKey),
+        nps: promoters - detractors,
+        previous: adjustedValue(group.previous, 'nps', chartKey) - 2,
+        promoters,
+        passives,
+        detractors
+      };
+    }
+
+    function makeSeries(monthly) {
+      return {
+        monthly,
+        weekly: monthly.flatMap((v,i)=>[v+(i%2?1:-1), v+(i%3?2:-2)]).slice(0,12).map(v=>Math.max(0,Math.round(v))),
+        daily: monthly.flatMap((v,i)=>[v-2, v+1, v+(i%2?3:-1)]).slice(0,14).map(v=>Math.max(0,Math.round(v)))
+      };
+    }
+
+    const departments = [
+      { name:'Infrastructure', score:8.9, nps:68, previous:61, responses:2650, rate:42, promoters:76, passives:16, detractors:8,
+        trend:{nps:makeSeries([58,60,62,65,66,68]), promoters:makeSeries([68,70,72,74,75,76]), passives:makeSeries([21,20,19,18,17,16]), detractors:makeSeries([11,10,9,8,8,8])},
+        groups:[
+          {name:'Network Team', score:9.1, nps:72, previous:66, responses:920, promoters:79, passives:14, detractors:7, trend:makeSeries([61,64,66,68,70,72])},
+          {name:'Server Team', score:8.7, nps:64, previous:59, responses:760, promoters:72, passives:20, detractors:8, trend:makeSeries([55,57,59,61,62,64])},
+          {name:'Cloud Operations', score:8.6, nps:61, previous:55, responses:970, promoters:70, passives:21, detractors:9, trend:makeSeries([52,54,56,58,60,61])}
+        ]},
+      { name:'Applications', score:8.6, nps:56, previous:47, responses:2210, rate:39, promoters:68, passives:20, detractors:12,
+        trend:{nps:makeSeries([43,46,48,51,54,56]), promoters:makeSeries([58,60,62,64,66,68]), passives:makeSeries([27,26,24,23,22,20]), detractors:makeSeries([15,14,14,13,12,12])},
+        groups:[
+          {name:'ERP Support', score:8.7, nps:58, previous:49, responses:680, promoters:69, passives:20, detractors:11, trend:makeSeries([44,47,50,53,55,58])},
+          {name:'CRM Support', score:8.5, nps:55, previous:48, responses:590, promoters:67, passives:21, detractors:12, trend:makeSeries([45,47,49,51,53,55])},
+          {name:'Integration Team', score:8.3, nps:52, previous:44, responses:520, promoters:64, passives:24, detractors:12, trend:makeSeries([41,43,45,48,50,52])},
+          {name:'Digital Workplace Apps', score:8.1, nps:50, previous:46, responses:420, promoters:62, passives:26, detractors:12, trend:makeSeries([43,44,46,48,49,50])}
+        ]},
+      { name:'Service Desk', score:8.3, nps:48, previous:45, responses:3640, rate:41, promoters:63, passives:22, detractors:15,
+        trend:{nps:makeSeries([39,41,44,45,47,48]), promoters:makeSeries([55,57,59,60,62,63]), passives:makeSeries([29,28,26,25,23,22]), detractors:makeSeries([16,15,15,15,15,15])},
+        groups:[
+          {name:'L1 Service Desk', score:8.4, nps:51, previous:46, responses:1700, promoters:65, passives:21, detractors:14, trend:makeSeries([42,44,46,48,50,51])},
+          {name:'L2 Technical Support', score:8.2, nps:49, previous:45, responses:1130, promoters:63, passives:23, detractors:14, trend:makeSeries([41,42,44,46,48,49])},
+          {name:'Major Incident Desk', score:7.8, nps:43, previous:44, responses:810, promoters:59, passives:25, detractors:16, trend:makeSeries([45,44,45,43,44,43])}
+        ]},
+      { name:'Cybersecurity', score:7.9, nps:39, previous:35, responses:1460, rate:34, promoters:55, passives:29, detractors:16,
+        trend:{nps:makeSeries([35,34,37,38,40,39]), promoters:makeSeries([50,49,52,54,56,55]), passives:makeSeries([35,36,32,30,28,29]), detractors:makeSeries([15,15,16,16,16,16])},
+        groups:[
+          {name:'Access Management', score:8.0, nps:42, previous:37, responses:620, promoters:57, passives:28, detractors:15, trend:makeSeries([36,37,39,40,43,42])},
+          {name:'Security Operations', score:7.8, nps:38, previous:34, responses:510, promoters:54, passives:30, detractors:16, trend:makeSeries([33,34,36,37,39,38])},
+          {name:'Vulnerability Management', score:7.4, nps:31, previous:33, responses:330, promoters:48, passives:35, detractors:17, trend:makeSeries([34,33,32,31,32,31])}
+        ]},
+      { name:'End User Computing', score:7.3, nps:27, previous:31, responses:1790, rate:36, promoters:48, passives:31, detractors:21,
+        trend:{nps:makeSeries([32,31,30,28,29,27]), promoters:makeSeries([52,51,50,49,49,48]), passives:makeSeries([28,29,30,30,31,31]), detractors:makeSeries([20,20,20,21,20,21])},
+        groups:[
+          {name:'Hardware Support', score:7.1, nps:22, previous:31, responses:870, promoters:44, passives:34, detractors:22, trend:makeSeries([32,30,28,25,24,22])},
+          {name:'Mobile Device Support', score:7.4, nps:29, previous:30, responses:430, promoters:49, passives:31, detractors:20, trend:makeSeries([31,30,29,30,28,29])},
+          {name:'Desktop Engineering', score:7.6, nps:34, previous:32, responses:490, promoters:53, passives:28, detractors:19, trend:makeSeries([30,31,32,33,33,34])}
+        ]},
+      { name:'Data & Analytics', score:6.8, nps:14, previous:18, responses:700, rate:28, promoters:39, passives:36, detractors:25,
+        trend:{nps:makeSeries([18,16,15,13,12,14]), promoters:makeSeries([43,42,40,38,37,39]), passives:makeSeries([32,34,36,37,38,36]), detractors:makeSeries([25,24,24,25,25,25])},
+        groups:[
+          {name:'BI Support', score:7.0, nps:19, previous:20, responses:290, promoters:42, passives:35, detractors:23, trend:makeSeries([21,20,19,18,17,19])},
+          {name:'Data Platform', score:6.7, nps:12, previous:17, responses:250, promoters:38, passives:36, detractors:26, trend:makeSeries([18,17,15,13,11,12])},
+          {name:'Reporting Operations', score:6.5, nps:8, previous:15, responses:160, promoters:34, passives:40, detractors:26, trend:makeSeries([15,14,12,10,9,8])}
+        ]}
+    ];
+
+    const colors = ['#16a34a','#2563eb','#8b5cf6','#f59e0b','#dc2626','#0f766e','#db2777','#0891b2'];
+    const sentimentColors = ['#16a34a', '#f59e0b', '#dc2626'];
+    let selectedDepartmentName = null;
+    const chartOffsets = {
+      composition: 0,
+      sentiment: 0,
+      departmentRanking: 0,
+      departmentTrend: 0,
+      departmentDistribution: 0,
+      hotspot: 0,
+      assignmentRanking: 0,
+      assignmentDistribution: 0,
+      assignmentTrend: 0,
+      assignmentRisk: 0
+    };
+    let activeChartKey = 'sentiment';
+
+    const periodState = {
+      level: 'year',
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+      weekStart: null,
+      day: new Date()
+    };
+
+    const charts = window.echarts ? {
+      sentimentTrend: echarts.init(document.getElementById('sentimentTrendChart')),
+      departmentRanking: echarts.init(document.getElementById('departmentRankingChart')),
+      departmentTrend: echarts.init(document.getElementById('departmentTrendChart')),
+      departmentDistribution: echarts.init(document.getElementById('departmentDistributionChart')),
+      hotspot: echarts.init(document.getElementById('hotspotChart')),
+      assignmentRanking: echarts.init(document.getElementById('assignmentRankingChart')),
+      assignmentDistribution: echarts.init(document.getElementById('assignmentDistributionChart')),
+      assignmentTrend: echarts.init(document.getElementById('assignmentTrendChart')),
+      assignmentRisk: echarts.init(document.getElementById('assignmentRiskChart'))
+    } : null;
+
+    const granularity = document.getElementById('granularity');
+    const trendMetric = document.getElementById('trendMetric');
+    const departmentRankingMetric = document.getElementById('departmentRankingMetric');
+    const assignmentRankingMetric = document.getElementById('assignmentRankingMetric');
+
+    function formatNps(v) { return `${v > 0 ? '+' : ''}${Math.round(v)}`; }
+    function selectedDepartment() { return departments.find(d => d.name === selectedDepartmentName); }
+    function visibleDepartments() { return departments; }
+    function allGroups(depts = departments) { return depts.flatMap(d => d.groups.map(g => ({...g, department:d.name}))); }
+
+    function weighted(depts) {
+      depts = depts.map(d => adjustedDepartment(d, 'composition'));
+      const total = depts.reduce((s,d)=>s+d.responses,0) || 1;
+      const avg = key => depts.reduce((s,d)=>s+d[key]*d.responses,0)/total;
+      return {
+        responses: total, score: avg('score'), nps: avg('nps'), previous: avg('previous'),
+        rate: avg('rate'), promoters: avg('promoters'), passives: avg('passives'), detractors: avg('detractors')
+      };
+    }
+
+    function currentScopeDepartments() {
+      return selectedDepartmentName ? [selectedDepartment()] : departments;
+    }
+
+    function renderKpis() {
+      const s = weighted(currentScopeDepartments());
+      const compositionScope = selectedDepartmentName ? selectedDepartmentName : 'All IT departments';
+      const compositionPeriod = compositionPeriodTitle();
+      if (document.getElementById('compositionPeriodLabel')) document.getElementById('compositionPeriodLabel').textContent = compositionPeriod;
+      if (document.getElementById('compositionPeriodCaption')) document.getElementById('compositionPeriodCaption').textContent = `${compositionScope} • ${compositionPeriod}`;
+      document.getElementById('kpiNps').textContent = formatNps(s.nps);
+      document.getElementById('kpiDelta').textContent = `${formatNps(s.nps - s.previous)} vs previous`;
+      document.getElementById('kpiScore').textContent = `${s.score.toFixed(1)}/10`;
+      document.getElementById('kpiResponses').textContent = Math.round(s.responses).toLocaleString();
+      document.getElementById('kpiRate').textContent = `${Math.round(s.rate)}%`;
+
+      const pc = Math.round(s.promoters), pa = Math.round(s.passives), de = Math.round(s.detractors);
+      const map = [
+        ['summaryPromoter', pc],
+        ['summaryPassive', pa],
+        ['summaryDetractor', de]
+      ];
+      map.forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        el.style.width = `${value}%`;
+        el.textContent = `${value}%`;
+      });
+      document.getElementById('promoterCount').textContent = Math.round(s.responses * pc / 100).toLocaleString();
+      document.getElementById('passiveCount').textContent = Math.round(s.responses * pa / 100).toLocaleString();
+      document.getElementById('detractorCount').textContent = Math.round(s.responses * de / 100).toLocaleString();
+    }
+
+    function renderSentimentTrend() {
+      setChartContext('sentiment');
+      const depts = currentScopeDepartments();
+      const l = chartLabels('sentiment');
+      const total = depts.reduce((s,d)=>s+d.responses,0) || 1;
+      const avgSeries = key => l.map((_,i)=>Math.round(depts.reduce((s,d)=>s+fitData(d.trend[key][granularity.value], 'sentiment')[i]*d.responses,0)/total));
+      document.getElementById('sentimentTrendLabel').textContent = chartPeriodTitle('sentiment');
+
+      charts.sentimentTrend.setOption({
+        color: sentimentColors,
+        tooltip: { trigger:'axis', axisPointer:{type:'shadow'}, valueFormatter:v=>`${v}%` },
+        legend: { bottom:0, textStyle:{color:'#64748b'} },
+        grid: { left:42, right:24, top:24, bottom:58 },
+        xAxis: { type:'category', data:l, axisLabel:{color:'#64748b', rotate: granularity.value !== 'monthly' ? 30 : 0} },
+        yAxis: { type:'value', max:100, axisLabel:{formatter:'{value}%', color:'#64748b'}, splitLine:{lineStyle:{color:'#eef2f7'}} },
+        series: [
+          {name:'Promoters', type:'bar', data:avgSeries('promoters'), barMaxWidth:24},
+          {name:'Passives', type:'bar', data:avgSeries('passives'), barMaxWidth:24},
+          {name:'Detractors', type:'bar', data:avgSeries('detractors'), barMaxWidth:24}
+        ]
+      }, true);
+    }
+
+    function renderDepartmentRanking() {
+      setChartContext('departmentRanking');
+      const isScore = departmentRankingMetric.value === 'score';
+      document.getElementById('departmentRankingLabel').textContent = `${isScore ? 'Rank by Score /10' : 'Rank by NPS'} • ${chartPeriodTitle('departmentRanking')}`;
+      const sorted = [...visibleDepartments()].map(d => adjustedDepartment(d, 'departmentRanking')).sort((a,b)=>(isScore ? a.score-b.score : a.nps-b.nps));
+
+      charts.departmentRanking.setOption({
+        tooltip: {
+          trigger:'axis',
+          axisPointer:{type:'shadow'},
+          formatter:p => {
+            const d = sorted.find(x=>x.name===p[0].name);
+            return `<strong>${d.name}</strong><br/>NPS: <strong>${formatNps(d.nps)}</strong><br/>Score: <strong>${d.score.toFixed(1)}/10</strong><br/>Responses: ${d.responses.toLocaleString()}<br/>Promoters: ${d.promoters}%<br/>Passives: ${d.passives}%<br/>Detractors: ${d.detractors}%<br/><br/><em>Click to drill down</em>`;
+          }
+        },
+        grid:{left:150,right:56,top:18,bottom:32},
+        xAxis:{type:'value', min:isScore?0:-100, max:isScore?10:100, axisLabel:{color:'#64748b', rotate: granularity.value !== 'monthly' ? 30 : 0}, splitLine:{lineStyle:{color:'#eef2f7'}}},
+        yAxis:{type:'category', data:sorted.map(d=>d.name), axisLabel:{color:'#111827', fontWeight:800}, axisTick:{show:false}, axisLine:{show:false}},
+        series:[{
+          type:'bar',
+          data:sorted.map(d=>isScore?d.score:d.nps),
+          barWidth:18,
+          itemStyle:{borderRadius:[0,10,10,0], color:p=> isScore ? (p.value>=8?'#16a34a':p.value>=7?'#f59e0b':'#dc2626') : (p.value>=50?'#16a34a':p.value>=20?'#f59e0b':'#dc2626')},
+          label:{show:true, position:'right', formatter:p=>isScore?p.value.toFixed(1):formatNps(p.value), color:'#111827', fontWeight:900}
+        }]
+      }, true);
+
+      charts.departmentRanking.off('click');
+      charts.departmentRanking.on('click', params => {
+        selectedDepartmentName = params.name;
+        renderAll();
+        document.getElementById('assignmentSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    function renderDepartmentTrend() {
+      setChartContext('departmentTrend');
+      const metric = trendMetric.value;
+      const suffix = metric === 'nps' ? '' : '%';
+      document.getElementById('departmentTrendLabel').textContent = selectedDepartmentName
+        ? `${selectedDepartmentName} • ${trendMetric.options[trendMetric.selectedIndex].text.replace('Trend: ', '')} • ${periodTitle()}`
+        : `${trendMetric.options[trendMetric.selectedIndex].text.replace('Trend: ', '')} by department • ${chartPeriodTitle('departmentTrend')}`;
+
+      const depts = selectedDepartmentName ? [selectedDepartment()] : departments.slice(0, 4);
+
+      charts.departmentTrend.setOption({
+        color: colors,
+        tooltip:{trigger:'axis', order:'valueDesc', valueFormatter:v=>metric==='nps'?formatNps(v):`${v}%`},
+        legend:{bottom:0, type:'scroll', textStyle:{color:'#64748b'}},
+        grid:{left:42,right:24,top:24,bottom:64},
+        xAxis:{
+          type:'category',
+          boundaryGap:false,
+          data:chartLabels(activeChartKey),
+          axisLabel:{
+            color:'#64748b',
+            fontSize:10,
+            rotate: granularity.value !== 'monthly' ? 30 : 0,
+            hideOverlap:true
+          }
+        },
+        yAxis:{type:'value', min:metric==='nps'?-20:0, max:metric==='nps'?80:100, axisLabel:{formatter:`{value}${suffix}`, color:'#64748b'}, splitLine:{lineStyle:{color:'#eef2f7'}}},
+        series:depts.map(d=>({name:d.name, type:'line', smooth:true, symbolSize:7, lineStyle:{width:3}, emphasis:{focus:'series'}, data:adjustedSeries(d.trend[metric][granularity.value], metric, 'departmentTrend')}))
+      }, true);
+    }
+
+    function renderDepartmentDistribution() {
+      setChartContext('departmentDistribution');
+      document.getElementById('departmentDistributionLabel').textContent = chartPeriodTitle('departmentDistribution');
+      const sorted = [...departments].map(d => adjustedDepartment(d, 'departmentDistribution'));
+
+      charts.departmentDistribution.setOption({
+        color: sentimentColors,
+        tooltip:{
+          trigger:'axis',
+          axisPointer:{type:'shadow'},
+          valueFormatter:v=>`${v}%`
+        },
+        legend:{bottom:0, textStyle:{color:'#64748b'}},
+        grid:{left:150,right:32,top:18,bottom:58},
+        xAxis:{
+          type:'value',
+          max:100,
+          axisLabel:{formatter:'{value}%', color:'#64748b'},
+          splitLine:{lineStyle:{color:'#eef2f7'}}
+        },
+        yAxis:{
+          type:'category',
+          data:sorted.map(d=>d.name).reverse(),
+          axisLabel:{color:'#111827', fontWeight:800}
+        },
+        series:[
+          {
+            name:'Promoters',
+            type:'bar',
+            data:sorted.map(d=>d.promoters).reverse(),
+            barWidth:10,
+            label:{show:true, position:'right', formatter:'{c}%', fontWeight:900, color:'#111827'}
+          },
+          {
+            name:'Passives',
+            type:'bar',
+            data:sorted.map(d=>d.passives).reverse(),
+            barWidth:10,
+            label:{show:true, position:'right', formatter:'{c}%', fontWeight:900, color:'#111827'}
+          },
+          {
+            name:'Detractors',
+            type:'bar',
+            data:sorted.map(d=>d.detractors).reverse(),
+            barWidth:10,
+            label:{show:true, position:'right', formatter:'{c}%', fontWeight:900, color:'#111827'}
+          }
+        ]
+      }, true);
+    }
+
+    function renderHotspot() {
+      setChartContext('hotspot');
+      document.getElementById('hotspotLabel').textContent = chartPeriodTitle('hotspot');
+      const groups = allGroups().map(g => adjustedGroup(g, 'hotspot'));
+      const det = [...groups].sort((a,b)=>a.detractors-b.detractors).slice(-8);
+      charts.hotspot.setOption({
+        tooltip:{trigger:'axis', axisPointer:{type:'shadow'}, valueFormatter:v=>`${v}%`},
+        grid:{left:155,right:42,top:18,bottom:32},
+        xAxis:{type:'value', max:35, axisLabel:{formatter:'{value}%', color:'#64748b'}, splitLine:{lineStyle:{color:'#eef2f7'}}},
+        yAxis:{type:'category', data:det.map(g=>g.name), axisLabel:{color:'#111827', fontWeight:800}},
+        series:[{type:'bar', data:det.map(g=>g.detractors), barWidth:18, itemStyle:{color:'#dc2626', borderRadius:[0,10,10,0]}, label:{show:true, position:'right', formatter:'{c}%', fontWeight:900}}]
+      }, true);
+    }
+
+    function renderAssignmentSection() {
+      const hasSelection = !!selectedDepartmentName;
+      document.getElementById('assignmentPlaceholder').classList.toggle('hidden', hasSelection);
+      document.getElementById('assignmentSection').classList.toggle('hidden', !hasSelection);
+
+      if (!hasSelection) return;
+
+      const dept = selectedDepartment();
+      const groups = dept.groups.map(g => adjustedGroup(g, 'assignmentRanking'));
+      document.getElementById('selectedDepartmentCrumb').textContent = dept.name;
+      document.getElementById('selectedDepartmentTitle').textContent = dept.name;
+      document.getElementById('tableLabel').textContent = dept.name;
+
+      renderAssignmentRanking(groups);
+      renderAssignmentDistribution(groups);
+      renderAssignmentTrend(groups);
+      renderAssignmentRisk(groups);
+      renderAssignmentTable(groups);
+
+      setTimeout(() => {
+        charts.assignmentRanking.resize();
+        charts.assignmentDistribution.resize();
+        charts.assignmentTrend.resize();
+        charts.assignmentRisk.resize();
+      }, 0);
+    }
+
+    function renderAssignmentRanking(groups) {
+      setChartContext('assignmentRanking');
+      const isScore = assignmentRankingMetric.value === 'score';
+      document.getElementById('assignmentRankingLabel').textContent = `${isScore ? 'Rank by Score /10' : 'Rank by NPS'} • ${chartPeriodTitle('assignmentRanking')}`;
+      const sorted = [...groups].sort((a,b)=>(isScore ? a.score-b.score : a.nps-b.nps));
+
+      charts.assignmentRanking.setOption({
+        tooltip:{trigger:'axis', axisPointer:{type:'shadow'}},
+        grid:{left:150,right:56,top:18,bottom:32},
+        xAxis:{type:'value', min:isScore?0:-100, max:isScore?10:100, axisLabel:{color:'#64748b', rotate: granularity.value !== 'monthly' ? 30 : 0}, splitLine:{lineStyle:{color:'#eef2f7'}}},
+        yAxis:{type:'category', data:sorted.map(g=>g.name), axisLabel:{color:'#111827', fontWeight:800}, axisTick:{show:false}, axisLine:{show:false}},
+        series:[{type:'bar', data:sorted.map(g=>isScore?g.score:g.nps), barWidth:18, itemStyle:{borderRadius:[0,10,10,0], color:p=> isScore ? (p.value>=8?'#16a34a':p.value>=7?'#f59e0b':'#dc2626') : (p.value>=50?'#16a34a':p.value>=20?'#f59e0b':'#dc2626')}, label:{show:true, position:'right', formatter:p=>isScore?p.value.toFixed(1):formatNps(p.value), color:'#111827', fontWeight:900}}]
+      }, true);
+    }
+
+    function renderAssignmentDistribution(groups) {
+      setChartContext('assignmentDistribution');
+      document.getElementById('assignmentDistributionLabel').textContent = chartPeriodTitle('assignmentDistribution');
+      const sorted = [...groups].map(g => adjustedGroup(g, 'assignmentDistribution'));
+
+      charts.assignmentDistribution.setOption({
+        color: sentimentColors,
+        tooltip:{
+          trigger:'axis',
+          axisPointer:{type:'shadow'},
+          valueFormatter:v=>`${v}%`
+        },
+        legend:{bottom:0, textStyle:{color:'#64748b'}},
+        grid:{left:150,right:32,top:18,bottom:58},
+        xAxis:{
+          type:'value',
+          max:100,
+          axisLabel:{formatter:'{value}%', color:'#64748b'},
+          splitLine:{lineStyle:{color:'#eef2f7'}}
+        },
+        yAxis:{
+          type:'category',
+          data:sorted.map(g=>g.name).reverse(),
+          axisLabel:{color:'#111827', fontWeight:800}
+        },
+        series:[
+          {
+            name:'Promoters',
+            type:'bar',
+            data:sorted.map(g=>g.promoters).reverse(),
+            barWidth:10,
+            label:{show:true, position:'right', formatter:'{c}%', fontWeight:900, color:'#111827'}
+          },
+          {
+            name:'Passives',
+            type:'bar',
+            data:sorted.map(g=>g.passives).reverse(),
+            barWidth:10,
+            label:{show:true, position:'right', formatter:'{c}%', fontWeight:900, color:'#111827'}
+          },
+          {
+            name:'Detractors',
+            type:'bar',
+            data:sorted.map(g=>g.detractors).reverse(),
+            barWidth:10,
+            label:{show:true, position:'right', formatter:'{c}%', fontWeight:900, color:'#111827'}
+          }
+        ]
+      }, true);
+    }
+
+    function renderAssignmentTrend(groups) {
+      document.getElementById('assignmentTrendLabel').textContent = `${selectedDepartmentName} groups • ${chartPeriodTitle('departmentTrend')}`;
+      charts.assignmentTrend.setOption({
+        color: colors,
+        tooltip:{trigger:'axis', order:'valueDesc', valueFormatter:v=>formatNps(v)},
+        legend:{bottom:0, type:'scroll', textStyle:{color:'#64748b'}},
+        grid:{left:42,right:24,top:24,bottom:64},
+        xAxis:{
+          type:'category',
+          boundaryGap:false,
+          data:chartLabels(activeChartKey),
+          axisLabel:{
+            color:'#64748b',
+            fontSize:10,
+            rotate: granularity.value !== 'monthly' ? 30 : 0,
+            hideOverlap:true
+          }
+        },
+        yAxis:{type:'value', min:0, max:80, axisLabel:{color:'#64748b'}, splitLine:{lineStyle:{color:'#eef2f7'}}},
+        series:groups.map(g=>({name:g.name, type:'line', smooth:true, symbolSize:7, lineStyle:{width:3}, emphasis:{focus:'series'}, data:adjustedSeries(g.trend[granularity.value], 'nps', 'assignmentTrend')}))
+      }, true);
+    }
+
+    function renderAssignmentRisk(groups) {
+      setChartContext('assignmentRisk');
+      groups = groups.map(g => adjustedGroup(g, 'assignmentRisk'));
+      document.getElementById('assignmentRiskLabel').textContent = chartPeriodTitle('assignmentRisk');
+      charts.assignmentRisk.setOption({
+        color: ['#16a34a', '#dc2626'],
+        tooltip:{trigger:'axis', axisPointer:{type:'shadow'}, valueFormatter:v=>`${v}%`},
+        legend:{bottom:0, textStyle:{color:'#64748b'}},
+        grid:{left:150,right:28,top:18,bottom:56},
+        xAxis:{type:'value', max:100, axisLabel:{formatter:'{value}%', color:'#64748b'}, splitLine:{lineStyle:{color:'#eef2f7'}}},
+        yAxis:{type:'category', data:groups.map(g=>g.name).reverse(), axisLabel:{color:'#111827', fontWeight:800}},
+        series:[
+          {name:'Promoters', type:'bar', data:groups.map(g=>g.promoters).reverse(), barWidth:14, label:{show:true, position:'right', formatter:'{c}%', fontWeight:900}},
+          {name:'Detractors', type:'bar', data:groups.map(g=>g.detractors).reverse(), barWidth:14, label:{show:true, position:'right', formatter:'{c}%', fontWeight:900}}
+        ]
+      }, true);
+    }
+
+    function renderAssignmentTable(groups) {
+      groups = groups.map(g => adjustedGroup(g, 'assignmentRanking'));
+      document.getElementById('detailTable').innerHTML = groups.map(g => {
+        const change = g.nps - g.previous;
+        return `<tr>
+          <td><strong>${g.name}</strong></td>
+          <td>${g.score.toFixed(1)}/10</td>
+          <td>${formatNps(g.nps)}</td>
+          <td>${formatNps(g.previous)}</td>
+          <td><span class="pill ${change>=0?'positive':'negative'}">${formatNps(change)}</span></td>
+          <td>${g.responses.toLocaleString()}</td>
+          <td>${g.promoters}%</td>
+          <td>${g.passives}%</td>
+          <td>${g.detractors}%</td>
+          <td><div class="mini-stack">
+            <span class="promoter" style="width:${g.promoters}%">${g.promoters}%</span>
+            <span class="passive" style="width:${g.passives}%">${g.passives}%</span>
+            <span class="detractor" style="width:${g.detractors}%">${g.detractors}%</span>
+          </div></td>
+        </tr>`;
+      }).join('');
+    }
+
+    function clearSelection() {
+      selectedDepartmentName = null;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    
+    function setLevel(level) {
+      const today = new Date();
+      if (level === 'year') {
+        periodState.level = 'year';
+      }
+
+      if (level === 'month') {
+        periodState.level = 'month';
+      }
+
+      if (level === 'week') {
+        periodState.level = 'week';
+        if (!periodState.weekStart) {
+          const base = new Date(periodState.year, periodState.month, Math.min(today.getDate(), 15));
+          periodState.weekStart = startOfWeek(base);
+        }
+      }
+
+      if (level === 'day') {
+        periodState.level = 'day';
+        if (!periodState.day) periodState.day = today;
+      }
+
+      Object.keys(chartOffsets).forEach(key => chartOffsets[key] = 0);
+      renderAll();
+    }
+
+    function movePeriod(direction) {
+      const today = new Date();
+
+      if (direction > 0 && sameOrFuturePeriod()) return;
+
+      if (periodState.level === 'year') {
+        periodState.year += direction;
+      } else if (periodState.level === 'month') {
+        const next = new Date(periodState.year, periodState.month + direction, 1);
+        periodState.year = next.getFullYear();
+        periodState.month = next.getMonth();
+      } else if (periodState.level === 'week') {
+        periodState.weekStart = addDays(periodState.weekStart || startOfWeek(today), direction * 7);
+        periodState.year = periodState.weekStart.getFullYear();
+        periodState.month = periodState.weekStart.getMonth();
+      } else {
+        periodState.day = addDays(periodState.day, direction);
+        periodState.year = periodState.day.getFullYear();
+        periodState.month = periodState.day.getMonth();
+      }
+
+      Object.keys(chartOffsets).forEach(key => chartOffsets[key] = 0);
+      renderAll();
+    }
+
+    function resetToCurrentPeriod() {
+      const today = new Date();
+      periodState.level = 'year';
+      periodState.year = today.getFullYear();
+      periodState.month = today.getMonth();
+      periodState.weekStart = startOfWeek(today);
+      periodState.day = today;
+      Object.keys(chartOffsets).forEach(key => chartOffsets[key] = 0);
+      renderAll();
+    }
+
+    function updatePeriodExplorer() {
+      const today = new Date();
+      const currentLabel = compositionPeriodTitle();
+
+      document.getElementById('periodCurrentLabel').textContent = currentLabel;
+      document.getElementById('periodExplorerSubtitle').textContent =
+        periodState.level === 'year' ? 'Viewing the full year. Click Month to narrow down.' :
+        periodState.level === 'month' ? 'Viewing a full month. Click Week to narrow down.' :
+        periodState.level === 'week' ? 'Viewing a week. Click Day to inspect a single day.' :
+        'Viewing a single day. Use Up one level to return to week/month/year.';
+
+      document.getElementById('yearStepLabel').textContent = String(periodState.year);
+      document.getElementById('monthStepLabel').textContent = monthName(periodState.month);
+      document.getElementById('weekStepLabel').textContent = periodState.weekStart
+        ? `${formatDay(periodState.weekStart)}–${formatDay(addDays(periodState.weekStart, 6))}`
+        : 'Choose week';
+      document.getElementById('dayStepLabel').textContent = formatDay(periodState.day || today);
+
+      document.querySelectorAll('.period-step').forEach(step => {
+        step.classList.toggle('active', step.dataset.level === periodState.level);
+      });
+
+      document.getElementById('periodBack').disabled = periodState.level === 'year';
+      document.getElementById('periodNext').disabled = sameOrFuturePeriod();
+    }
+
+function renderAll() {
+      updatePeriodExplorer();
+      updateChartNavTooltips();
+      document.getElementById('activePeriodLabel').textContent = `Composition period follows selected view • Selected view: ${fullPeriodRange('sentiment')}`;
+      renderKpis();
+      if (!charts) return;
+      renderSentimentTrend();
+      renderDepartmentRanking();
+      renderDepartmentTrend();
+      renderDepartmentDistribution();
+      renderHotspot();
+      renderAssignmentSection();
+    }
+
+    departmentRankingMetric.addEventListener('change', renderDepartmentRanking);
+    assignmentRankingMetric.addEventListener('change', () => selectedDepartmentName && renderAssignmentRanking(selectedDepartment().groups));
+    trendMetric.addEventListener('change', renderDepartmentTrend);
+    granularity.addEventListener('change', () => {
+      Object.keys(chartOffsets).forEach(key => chartOffsets[key] = 0);
+      updateChartNavTooltips();
+      renderAll();
+    });
+    document.getElementById('dateRange').addEventListener('change', () => {
+      Object.keys(chartOffsets).forEach(key => chartOffsets[key] = 0);
+      updateChartNavTooltips();
+      renderAll();
+    });
+
+    document.getElementById('yearSelector').addEventListener('change', () => {
+      Object.keys(chartOffsets).forEach(key => chartOffsets[key] = 0);
+      updateChartNavTooltips();
+      renderAll();
+    });
+
+    document.getElementById('monthSelector').addEventListener('change', () => {
+      Object.keys(chartOffsets).forEach(key => chartOffsets[key] = 0);
+      updateChartNavTooltips();
+      renderAll();
+    });
+    document.getElementById('resetFilters').addEventListener('click', () => {
+      Object.keys(chartOffsets).forEach(key => chartOffsets[key] = 0);
+      clearSelection();
+    });
+    document.getElementById('backButton').addEventListener('click', clearSelection);
+    document.getElementById('clearSelection').addEventListener('click', clearSelection);
+    document.getElementById('filterToggle').addEventListener('click', () => document.getElementById('filters').classList.toggle('open'));
+
+    document.querySelectorAll('.period-step').forEach(step => {
+      step.addEventListener('click', () => setLevel(step.dataset.level));
+    });
+
+    document.getElementById('periodPrev').addEventListener('click', () => movePeriod(-1));
+    document.getElementById('periodNext').addEventListener('click', () => movePeriod(1));
+    document.getElementById('periodToday').addEventListener('click', resetToCurrentPeriod);
+    document.getElementById('periodBack').addEventListener('click', () => {
+      const order = ['year', 'month', 'week', 'day'];
+      const idx = order.indexOf(periodState.level);
+      if (idx > 0) setLevel(order[idx - 1]);
+    });
+    
+    document.querySelectorAll('[data-chart-nav]').forEach(button => {
+      button.addEventListener('click', () => {
+        const key = button.dataset.chartNav;
+        const dir = Number(button.dataset.dir || 0);
+        if (dir > 0 && !canNavigateForward(key)) return;
+        chartOffsets[key] = (chartOffsets[key] || 0) + dir;
+        updateChartNavTooltips();
+
+        if (key === 'composition') renderKpis();
+        if (key === 'sentiment') renderSentimentTrend();
+        if (key === 'departmentRanking') renderDepartmentRanking();
+        if (key === 'departmentTrend') renderDepartmentTrend();
+        if (key === 'departmentDistribution') renderDepartmentDistribution();
+        if (key === 'hotspot') renderHotspot();
+
+        if (selectedDepartmentName) {
+          const groups = selectedDepartment().groups;
+          if (key === 'assignmentRanking') renderAssignmentRanking(groups);
+          if (key === 'assignmentDistribution') renderAssignmentDistribution(groups);
+          if (key === 'assignmentTrend') renderAssignmentTrend(groups);
+          if (key === 'assignmentRisk') renderAssignmentRisk(groups);
+        }
+      });
+    });
+
+window.addEventListener('resize', () => charts && Object.values(charts).forEach(c => c.resize()));
+
+    renderAll();
+  </script>
+</body>
+</html>
