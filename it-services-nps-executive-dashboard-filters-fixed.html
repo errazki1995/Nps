@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IT Services NPS Executive Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #64748b;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --green: #16a34a;
+      --orange: #64748b;
+      --red: #dc2626;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .dashboard {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 22px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button, select, input {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    button:hover, select:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(130px, 1fr)) auto;
+      gap: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+
+    .filter-field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .filter-field label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .filter-field input:disabled {
+      background: #f1f5f9;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(229, 231, 235, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      transition: 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 38px rgba(15, 23, 42, 0.11);
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 950;
+      letter-spacing: -0.055em;
+    }
+
+    .kpi-sub {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 850;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .wide-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .chart {
+      width: 100%;
+      height: 330px;
+    }
+
+    .chart.tall { height: 380px; }
+
+    .composition {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .summary-bar {
+      display: flex;
+      width: 100%;
+      height: 44px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      background: #f3f4f6;
+    }
+
+    .seg {
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 950;
+      min-width: 32px;
+    }
+
+    .promoter { background: var(--green); }
+    .passive { background: var(--orange); }
+    .detractor { background: var(--red); }
+
+    .count-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .count-box {
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      border-radius: 14px;
+    }
+
+    .count-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 7px;
+    }
+
+    .count-value {
+      font-size: 22px;
+      font-weight: 950;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .control-line {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: -4px 0 14px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .breadcrumb button {
+      padding: 8px 11px;
+      font-size: 13px;
+    }
+
+    .selected-banner {
+      margin-bottom: 22px;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .selected-banner strong {
+      font-size: 18px;
+    }
+
+    .placeholder {
+      margin-bottom: 22px;
+      border: 1px dashed #cbd5e1;
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 22px;
+      color: var(--muted);
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    tr:hover td { background: #f8fafc; }
+
+    .pill {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .positive { background: #dcfce7; color: #166534; }
+    .negative { background: #fee2e2; color: #991b1b; }
+
+    .mini-stack {
+      display: flex;
+      width: 170px;
+      height: 18px;
+      border-radius: 999px;
+      overflow: hidden;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 950;
+      line-height: 18px;
+      text-align: center;
+    }
+
+    .mini-stack span {
+      display: block;
+      min-width: 24px;
+    }
+
+
+    .chart-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      padding: 4px;
+      max-width: 100%;
+    }
+
+    .chart-nav button {
+      padding: 7px 10px;
+      font-size: 12px;
+      line-height: 1;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: #ffffff;
+      color: #334155;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+
+    .chart-nav button:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      background: #f1f5f9;
+      color: #94a3b8;
+      box-shadow: none;
+    }
+
+    .chart-nav button:disabled:hover {
+      transform: none;
+      background: #f1f5f9;
+      color: #94a3b8;
+      border-color: transparent;
+    }
+
+    .chart-nav button:hover {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .period-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 11px;
+      line-height: 1.1;
+      font-weight: 850;
+      max-width: 340px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+
+
+    .period-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      list-style: none;
+      font-weight: 950;
+      color: #0f172a;
+    }
+
+    .period-summary::-webkit-details-marker { display: none; }
+
+    .period-summary strong {
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 12px;
+      max-width: 70%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    details.period-drilldown[open] .period-summary {
+      margin-bottom: 16px;
+    }
+
+    .period-drilldown {
+      margin-bottom: 22px;
+      padding: 18px;
+    }
+
+    .period-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .period-title {
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: -0.02em;
+    }
+
+    .period-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 5px;
+      font-weight: 700;
+    }
+
+    .period-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .period-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .period-step {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    .period-step strong {
+      font-size: 13px;
+      color: #0f172a;
+    }
+
+    .period-step span {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .period-step.active {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+    }
+
+    .period-step.active strong,
+    .period-step.active span {
+      color: #1d4ed8;
+    }
+
+    .period-step:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .period-control-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .period-current {
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      color: #1d4ed8;
+      text-align: center;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 900;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+
+    .echarts-legend-pill {
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+
+    .comparison-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+      padding: 16px 18px;
+    }
+
+    .comparison-summary div {
+      display: grid;
+      gap: 5px;
+    }
+
+    .comparison-summary strong {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+    }
+
+    .comparison-summary span {
+      font-size: 14px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    @media (max-width: 760px) {
+      .comparison-summary { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .actions, .filters, .mobile-toggle, .chart-nav, #periodExplorer { display: none !important; }
+      .dashboard { max-width: none; padding: 10px; }
+      .card { box-shadow: none; break-inside: avoid; }
+    }
+
+
+    .filter-panel {
+      margin-bottom: 22px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .filter-panel summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-weight: 950;
+    }
+
+    .filter-panel summary::-webkit-details-marker { display: none; }
+
+    .filter-panel summary span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .filter-panel-body {
+      padding: 0 18px 18px;
+    }
+
+    .filter-field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .filter-field label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .custom-date-field { display: none; }
+    .custom-date-field.visible { display: grid; }
+
+    .mobile-toggle { display: none; }
+
+    .notice {
+      display: none;
+      margin-bottom: 18px;
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+      font-weight: 750;
+    }
+
+    @media (max-width: 1180px) {
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+      .grid, .wide-grid, .composition { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .dashboard { padding: 18px; }
+      .header { flex-direction: column; }
+      h1 { font-size: 27px; }
+      .mobile-toggle {
+        display: inline-flex;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 12px;
+      }
+      .filters {
+        display: none;
+        grid-template-columns: 1fr;
+      }
+      .filters.open { display: grid; }
+      .kpis, .count-grid { grid-template-columns: 1fr; }
+      .chart { height: 310px; }
+      .period-steps { grid-template-columns: 1fr; }
+      .period-control-row { grid-template-columns: 1fr; }
+      .period-header { flex-direction: column; }
+      .selected-banner { flex-direction: column; align-items: flex-start; }
+    }
+
+
+    /* Filter panel must remain usable on mobile. The previous mobile rule hid .filters,
+       which made the collapsed executive filter panel appear broken on phones. */
+    .filter-panel .filters {
+      display: grid;
+    }
+
+    @media (max-width: 760px) {
+      .filter-panel .filters {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard">
+    <header class="header">
+      <div>
+        <h1>IT Services NPS Executive Dashboard</h1>
+        <div class="subtitle">Department-first drill-down into assignment group performance</div>
+        <div class="subtitle" style="font-size:12px;">Demo data generated from a realistic survey-response array: one row per feedback response.</div>
+        <div class="subtitle" id="activePeriodLabel" style="font-weight:800;color:#2563eb;">Active period: Current Month • Weekly breakout</div>
+      </div>
+      <div class="actions">
+        <button id="exportPdf">Export PDF</button>
+        <button id="exportExcel" class="primary">Export Excel</button>
+      </div>
+    </header>
+
+    <div class="notice" id="cdnNotice">Charts could not load. This file needs internet access because ECharts is loaded from CDN.</div>
+
+    <section class="kpis">
+      <article class="card"><div class="kpi-label">Overall NPS</div><div class="kpi-value" id="kpiNps">+47</div><div class="kpi-sub" id="kpiDelta">+5 vs previous</div></article>
+      <article class="card"><div class="kpi-label">Response Count</div><div class="kpi-value" id="kpiResponses">12,450</div><div class="kpi-sub" id="responsePeriodLabel">Exact survey sample count</div></article>
+      <article class="card"><div class="kpi-label">Response Rate</div><div class="kpi-value" id="kpiRate">38%</div><div class="kpi-sub">Ticket feedback rate</div></article>
+    </section>
+
+    <button class="mobile-toggle hidden" id="filterToggle">Show / Hide Filters</button>
+
+    <details class="card filter-panel" id="filterPanel">
+      <summary>Change filters & date range <span id="filterSummaryLabel">Month • Weekly breakout</span></summary>
+      <div class="filter-panel-body">
+    <section class="filters" id="filters">
+      <select id="dateRange" aria-label="Reporting period type">
+        <option value="month">Month</option>
+        <option value="quarter">Quarter</option>
+        <option value="year">Year</option>
+        <option value="custom">Custom Date Range</option>
+      </select>
+      <div class="filter-field custom-date-field" id="fromDateField">
+        <label for="fromDate">Custom From</label>
+        <input id="fromDate" type="date" />
+      </div>
+      <div class="filter-field custom-date-field" id="toDateField">
+        <label for="toDate">Custom To</label>
+        <input id="toDate" type="date" />
+      </div>
+      <select id="yearSelector" aria-label="Year">
+        <option value="2026">Year: 2026</option>
+        <option value="2025">Year: 2025</option>
+        <option value="2024">Year: 2024</option>
+        <option value="2023">Year: 2023</option>
+      </select>
+      <select id="monthSelector" aria-label="Month">
+        <option value="0">Month: Jan</option>
+        <option value="1">Month: Feb</option>
+        <option value="2">Month: Mar</option>
+        <option value="3">Month: Apr</option>
+        <option value="4" selected>Month: May</option>
+        <option value="5">Month: Jun</option>
+        <option value="6">Month: Jul</option>
+        <option value="7">Month: Aug</option>
+        <option value="8">Month: Sep</option>
+        <option value="9">Month: Oct</option>
+        <option value="10">Month: Nov</option>
+        <option value="11">Month: Dec</option>
+      </select>
+      <select id="granularity" aria-label="Chart breakout">
+        <option value="monthly">Monthly</option>
+        <option value="weekly">Weekly</option>
+        <option value="daily">Daily</option>
+      </select>
+      <select id="comparisonMode" aria-label="Comparison mode">
+        <option value="previous">Compare: Previous Period</option>
+        <option value="lastYear">Compare: Same Period Last Year</option>
+        <option value="none">Compare: None</option>
+      </select>
+      <button id="resetFilters">Reset / Back to Departments</button>
+    </section>
+      </div>
+    </details>
+
+    <details class="card period-drilldown" id="periodExplorer">
+      <summary class="period-summary"><span>Period Explorer</span><strong id="periodSummaryLabel">Current year</strong></summary>
+      <div class="period-header">
+        <div>
+          <div class="period-title">Period Explorer</div>
+          <div class="period-subtitle" id="periodExplorerSubtitle">Executive default: monthly operating view. Use Year for annual/quarterly steering, then drill into week/day for incidents.</div>
+        </div>
+        <div class="period-actions">
+          <button id="periodBack">← Up one level</button>
+          <button id="periodToday" class="primary">Current period</button>
+        </div>
+      </div>
+
+      <div class="period-steps">
+        <button class="period-step active" data-level="year">
+          <strong>Year</strong>
+          <span id="yearStepLabel">2026</span>
+        </button>
+        <button class="period-step" data-level="month">
+          <strong>Month</strong>
+          <span id="monthStepLabel">Choose month</span>
+        </button>
+        <button class="period-step" data-level="week">
+          <strong>Week</strong>
+          <span id="weekStepLabel">Choose week</span>
+        </button>
+        <button class="period-step" data-level="day">
+          <strong>Day</strong>
+          <span id="dayStepLabel">Choose day</span>
+        </button>
+      </div>
+
+      <div class="period-control-row">
+        <button id="periodPrev">‹ Previous</button>
+        <div class="period-current" id="periodCurrentLabel">Full Year 2026</div>
+        <button id="periodNext">Next ›</button>
+      </div>
+    </details>
+
+    <section class="card comparison-summary">
+      <div>
+        <strong>Reporting Period</strong>
+        <span id="reportingPeriodLabel">Current period</span>
+      </div>
+      <div>
+        <strong>Comparison</strong>
+        <span id="comparisonPeriodLabel">Previous period</span>
+      </div>
+      <div>
+        <strong>NPS Target</strong>
+        <span id="thresholdLabel">+30 NPS Target</span>
+      </div>
+    </section>
+
+    <section class="composition">
+      <article class="card">
+        <div class="section-title">
+          <h2>NPS Composition</h2>
+          <span class="chart-nav">
+            <button data-chart-nav="composition" data-dir="-1">‹</button>
+            <span class="period-pill" id="compositionPeriodLabel">Current period</span>
+            <button data-chart-nav="composition" data-dir="1">›</button>
+          </span>
+        </div>
+        <p id="compositionPeriodCaption" style="margin:-6px 0 12px;color:#64748b;font-size:13px;font-weight:750;">Period: current selected range</p>
+        <div class="summary-bar">
+          <span class="seg promoter" id="summaryPromoter" style="width:63%">63%</span>
+          <span class="seg passive" id="summaryPassive" style="width:21%">21%</span>
+          <span class="seg detractor" id="summaryDetractor" style="width:16%">16%</span>
+        </div>
+        <div class="count-grid">
+          <div class="count-box"><div class="count-label">Promoters</div><div class="count-value" id="promoterCount">7,844</div></div>
+          <div class="count-box"><div class="count-label">Passives</div><div class="count-value" id="passiveCount">2,615</div></div>
+          <div class="count-box"><div class="count-label">Detractors</div><div class="count-value" id="detractorCount">1,991</div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="section-title"><h2>Promoter / Passive / Detractor Trend</h2><span class="chart-nav">
+            <button data-chart-nav="sentiment" data-dir="-1">‹</button>
+            <span class="period-pill" id="sentimentTrendLabel">Monthly view</span>
+            <button data-chart-nav="sentiment" data-dir="1">›</button>
+          </span></div>
+        <div id="sentimentTrendChart" class="chart"></div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="section-title">
+          <h2>Department NPS Ranking</h2>
+          <span class="chart-nav">
+            <button data-chart-nav="departmentRanking" data-dir="-1">‹</button>
+            <span class="period-pill" id="departmentRankingLabel">Ranked by NPS</span>
+            <button data-chart-nav="departmentRanking" data-dir="1">›</button>
+          </span>
+        </div>
+        <div class="control-line">
+          
+          <span class="hint">Click a department bar to reveal assignment groups.</span>
+        </div>
+        <div id="departmentRankingChart" class="chart"></div>
+      </article>
+
+      <article class="card">
+        <div class="section-title"><h2>Department Trend</h2><span class="chart-nav">
+            <button data-chart-nav="departmentTrend" data-dir="-1">‹</button>
+            <span class="period-pill" id="departmentTrendLabel">NPS by period</span>
+            <button data-chart-nav="departmentTrend" data-dir="1">›</button>
+          </span></div>
+        <div id="departmentTrendChart" class="chart"></div>
+      </article>
+    </section>
+
+
+    <section class="placeholder" id="assignmentPlaceholder">
+      Select a department from the ranking chart above to display assignment group analytics.
+    </section>
+
+
+    <section id="assignmentSection" class="hidden">
+      <div class="breadcrumb">
+        <button id="backButton">‹ to all departments</button>
+        <span>All Departments</span>
+        <span>›</span>
+        <strong id="selectedDepartmentCrumb">Infrastructure</strong>
+      </div>
+
+      <div class="selected-banner">
+        <div>
+          <strong id="selectedDepartmentTitle">Infrastructure</strong>
+          <div>Assignment group analytics for the selected department only.</div>
+        </div>
+        <button id="clearSelection">Clear selection</button>
+      </div>
+
+      <section class="wide-grid">
+        <article class="card">
+          <div class="section-title"><h2>Assignment Group Ranking</h2><span class="chart-nav">
+            <button data-chart-nav="assignmentRanking" data-dir="-1">‹</button>
+            <span class="period-pill" id="assignmentRankingLabel">Ranked by NPS</span>
+            <button data-chart-nav="assignmentRanking" data-dir="1">›</button>
+          </span></div>
+          <div class="control-line">
+            
+          </div>
+          <div id="assignmentRankingChart" class="chart tall"></div>
+        </article>
+
+        <article class="card">
+          <div class="section-title"><h2>Assignment Group Sentiment Comparison</h2><span class="chart-nav">
+              <button data-chart-nav="assignmentDistribution" data-dir="-1">‹</button>
+              <span class="period-pill" id="assignmentDistributionLabel">Current period</span>
+              <button data-chart-nav="assignmentDistribution" data-dir="1">›</button>
+            </span></div>
+          <div id="assignmentDistributionChart" class="chart tall"></div>
+        </article>
+      </section>
+
+      <section class="wide-grid">
+        <article class="card">
+          <div class="section-title"><h2>Assignment Group Trend</h2><span class="chart-nav">
+            <button data-chart-nav="assignmentTrend" data-dir="-1">‹</button>
+            <span class="period-pill" id="assignmentTrendLabel">Selected department groups</span>
+            <button data-chart-nav="assignmentTrend" data-dir="1">›</button>
+          </span></div>
+          <div id="assignmentTrendChart" class="chart"></div>
+        </article>
+
+        <article class="card">
+          <div class="section-title"><h2>Promoter Leaders / Detractor Risks</h2><span class="chart-nav">
+              <button data-chart-nav="assignmentRisk" data-dir="-1">‹</button>
+              <span class="period-pill" id="assignmentRiskLabel">Current period</span>
+              <button data-chart-nav="assignmentRisk" data-dir="1">›</button>
+            </span></div>
+          <div id="assignmentRiskChart" class="chart"></div>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="section-title"><h2>Assignment Group Detail</h2><span id="tableLabel">Selected department</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Assignment Group</th>
+                <th>NPS</th>
+                <th>Previous NPS</th>
+                <th>Change</th>
+                <th>Responses</th>
+                <th>Promoters</th>
+                <th>Passives</th>
+                <th>Detractors</th>
+                <th>Mix</th>
+              </tr>
+            </thead>
+            <tbody id="detailTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  
+
+    <section class="wide-grid">
+      <article class="card">
+        <div class="section-title"><h2>Department Sentiment Comparison</h2><span class="chart-nav">
+            <button data-chart-nav="departmentDistribution" data-dir="-1">‹</button>
+            <span class="period-pill" id="departmentDistributionLabel">Current period</span>
+            <button data-chart-nav="departmentDistribution" data-dir="1">›</button>
+          </span></div>
+        <div id="departmentDistributionChart" class="chart"></div>
+      </article>
+
+      <article class="card">
+        <div class="section-title"><h2>Executive Hotspots</h2><span class="chart-nav">
+            <button data-chart-nav="hotspot" data-dir="-1">‹</button>
+            <span class="period-pill" id="hotspotLabel">Current period</span>
+            <button data-chart-nav="hotspot" data-dir="1">›</button>
+          </span></div>
+        <div id="hotspotChart" class="chart"></div>
+      </article>
+    </section>
+</main>
+
+  
+<script>
+(() => {
+  if (!window.echarts) {
+    const notice = document.getElementById('cdnNotice');
+    if (notice) notice.style.display = 'block';
+    return;
+  }
+
+  const departments = [
+    { name:'Infrastructure', basePromoter:74, basePassive:17, baseDetractor:9, monthlyTickets:1800, responseRate:0.13,
+      groups:[{name:'Network Team',weight:.35,promoterBias:5,detractorBias:-2},{name:'Server Team',weight:.29,promoterBias:1,detractorBias:0},{name:'Cloud Operations',weight:.36,promoterBias:0,detractorBias:1}]},
+    { name:'Applications', basePromoter:66, basePassive:22, baseDetractor:12, monthlyTickets:1650, responseRate:0.12,
+      groups:[{name:'ERP Support',weight:.31,promoterBias:2,detractorBias:0},{name:'CRM Support',weight:.27,promoterBias:1,detractorBias:1},{name:'Integration Team',weight:.24,promoterBias:-1,detractorBias:2},{name:'Digital Workplace Apps',weight:.18,promoterBias:-2,detractorBias:1}]},
+    { name:'Service Desk', basePromoter:60, basePassive:24, baseDetractor:16, monthlyTickets:3100, responseRate:0.11,
+      groups:[{name:'L1 Service Desk',weight:.46,promoterBias:2,detractorBias:-1},{name:'L2 Technical Support',weight:.32,promoterBias:0,detractorBias:0},{name:'Major Incident Desk',weight:.22,promoterBias:-4,detractorBias:3}]},
+    { name:'Cybersecurity', basePromoter:55, basePassive:28, baseDetractor:17, monthlyTickets:920, responseRate:0.10,
+      groups:[{name:'Access Management',weight:.42,promoterBias:2,detractorBias:-1},{name:'Security Operations',weight:.35,promoterBias:0,detractorBias:0},{name:'Vulnerability Management',weight:.23,promoterBias:-5,detractorBias:3}]},
+    { name:'End User Computing', basePromoter:48, basePassive:30, baseDetractor:22, monthlyTickets:1450, responseRate:0.105,
+      groups:[{name:'Hardware Support',weight:.48,promoterBias:-4,detractorBias:4},{name:'Mobile Device Support',weight:.24,promoterBias:1,detractorBias:-1},{name:'Desktop Engineering',weight:.28,promoterBias:4,detractorBias:-2}]},
+    { name:'Data & Analytics', basePromoter:42, basePassive:34, baseDetractor:24, monthlyTickets:720, responseRate:0.09,
+      groups:[{name:'BI Support',weight:.41,promoterBias:2,detractorBias:-1},{name:'Data Platform',weight:.35,promoterBias:-3,detractorBias:3},{name:'Reporting Operations',weight:.24,promoterBias:-6,detractorBias:4}]}
+  ];
+
+  const colors = ['#16a34a','#2563eb','#8b5cf6','#64748b','#dc2626','#0f766e','#db2777','#0891b2'];
+  const sentimentColors = ['#16a34a', '#64748b', '#dc2626'];
+  let selectedDepartmentName = null;
+  const chartOffsets = {composition:0,sentiment:0,departmentRanking:0,departmentTrend:0,departmentDistribution:0,hotspot:0,assignmentRanking:0,assignmentDistribution:0,assignmentTrend:0,assignmentRisk:0};
+  let activeChartKey = 'sentiment';
+
+  const chartIds = {
+    sentimentTrend:'sentimentTrendChart',
+    departmentRanking:'departmentRankingChart',
+    departmentTrend:'departmentTrendChart',
+    departmentDistribution:'departmentDistributionChart',
+    hotspot:'hotspotChart',
+    assignmentRanking:'assignmentRankingChart',
+    assignmentDistribution:'assignmentDistributionChart',
+    assignmentTrend:'assignmentTrendChart',
+    assignmentRisk:'assignmentRiskChart'
+  };
+
+  const charts = {};
+  Object.entries(chartIds).forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if (el) charts[key] = echarts.init(el);
+  });
+
+  const dateRange = document.getElementById('dateRange');
+  const granularity = document.getElementById('granularity');
+  const trendMetric = document.getElementById('trendMetric');
+  const fromDateInput = document.getElementById('fromDate');
+  const toDateInput = document.getElementById('toDate');
+
+  function safeText(id, value) { const el = document.getElementById(id); if (el) el.textContent = value; }
+  function safeHTML(id, value) { const el = document.getElementById(id); if (el) el.innerHTML = value; }
+  function addDays(date, days){const d=new Date(date);d.setDate(d.getDate()+days);return d;}
+  function addMonths(date, months){const d=new Date(date);d.setMonth(d.getMonth()+months);return d;}
+  function startOfWeek(date){const d=new Date(date);const day=d.getDay();d.setDate(d.getDate()+(day===0?-6:1-day));d.setHours(0,0,0,0);return d;}
+  function formatNps(v){return `${v>0?'+':''}${Math.round(v||0)}`;}
+  function formatDay(date){return date.toLocaleString('en-GB',{day:'numeric',month:'short'});}
+  function formatFullDay(date){return date.toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+  function formatMonth(date){return date.toLocaleString('en-GB',{month:'short',year:'numeric'});}
+  function iso(date){return date.toISOString().slice(0,10);}
+  function dayKey(date){return iso(date);}
+  function parseISO(value){const [y,m,d]=value.split('-').map(Number);return new Date(y,m-1,d);}
+  function scoreFromSegment(segment, seed){if(segment==='promoter')return seed%2===0?10:9;if(segment==='passive')return seed%2===0?8:7;return Math.max(0,Math.min(6,1+(seed%6)));}
+  function weightedSegment(promoterPct,passivePct,seed){const value=Math.abs(Math.sin(seed*78.233)*10000)%100;if(value<promoterPct)return'promoter';if(value<promoterPct+passivePct)return'passive';return'detractor';}
+  function seededNoise(seed,amp){const x=Math.sin(seed*12.9898)*43758.5453;return(x-Math.floor(x)-.5)*amp*2;}
+  function getGranularity(){return granularity?.value || 'monthly';}
+  function daySpan(start,end){return Math.max(1,Math.round((end-start)/86400000)+1);}
+  function getEffectiveGranularity(){
+    const requested = getGranularity();
+    const range = dateRange?.value || 'month';
+    const base = currentBaseWindow('composition');
+    const days = daySpan(base.start, base.end);
+
+    // Executive readability guardrails:
+    // - A single selected month should never collapse into one monthly dot.
+    // - Wide daily/weekly intervals are summarized automatically so charts remain readable.
+    if (range === 'month' && requested === 'monthly') return 'weekly';
+    if (requested === 'daily' && days > 180) return 'monthly';
+    if (requested === 'daily' && days > 62) return 'weekly';
+    if (requested === 'weekly' && days > 180) return 'monthly';
+    return requested;
+  }
+  function granularityLabel(){
+    const requested = getGranularity();
+    const effective = getEffectiveGranularity();
+    const label = effective === 'monthly' ? 'Monthly' : effective === 'weekly' ? 'Weekly' : 'Daily';
+    if (requested === effective) return `${label} breakout`;
+    if ((dateRange?.value || 'month') === 'month' && requested === 'monthly') return `${label} breakout (auto for selected month)`;
+    return `${label} breakout (auto summarized for readability)`;
+  }
+  function readabilityNote(){
+    const requested = getGranularity();
+    const effective = getEffectiveGranularity();
+    if(requested === effective) return '';
+    return ' Wide interval summarized automatically to keep charts readable.';
+  }
+  function selectedYear(){ return Number(document.getElementById('yearSelector')?.value || new Date().getFullYear()); }
+  function selectedMonth(){ return Number(document.getElementById('monthSelector')?.value || new Date().getMonth()); }
+
+  function buildSurveyResponses(){
+    const responses=[]; const today=new Date(); const start=new Date(today.getFullYear()-1,0,1);
+    for(let current=new Date(start); current<=today; current=addDays(current,1)){
+      const year=current.getFullYear(), month=current.getMonth(), day=current.getDate(), weekday=current.getDay(), isWeekend=weekday===0||weekday===6;
+      departments.forEach((dept,deptIndex)=>{
+        dept.groups.forEach((group,groupIndex)=>{
+          const monthlyTickets=dept.monthlyTickets*group.weight;
+          const dailyTicketBase=monthlyTickets/21;
+          const weekdayFactor=isWeekend?0.08:(weekday===1?1.15:weekday===5?0.85:1);
+          const responseRate=dept.responseRate*(0.92+(groupIndex*.04));
+          const expected=dailyTicketBase*weekdayFactor*responseRate;
+          const dailyResponses=Math.max(0,Math.round(expected+seededNoise(year+month*31+day*7+deptIndex*11+groupIndex*17,Math.max(1,expected*.4))));
+          for(let i=0;i<dailyResponses;i++){
+            const monthTrend=((year-today.getFullYear())*12+(month-today.getMonth()))*-0.25;
+            const seasonality=Math.sin((month+deptIndex)/2.1)*3;
+            const incidentSpike=(dept.name==='End User Computing'&&month===today.getMonth()&&day>=10&&day<=16)?9:(dept.name==='Data & Analytics'&&month===today.getMonth()-1&&day>=4&&day<=12)?7:0;
+            let promoterPct=dept.basePromoter+group.promoterBias+seasonality+monthTrend-incidentSpike+seededNoise(day+i+groupIndex,2.4);
+            let detractorPct=dept.baseDetractor+group.detractorBias-(monthTrend/2)+incidentSpike+seededNoise(day+i+deptIndex,1.7);
+            promoterPct=Math.max(18,Math.min(88,Math.round(promoterPct)));
+            detractorPct=Math.max(4,Math.min(50,Math.round(detractorPct)));
+            let passivePct=Math.max(5,100-promoterPct-detractorPct);
+            const total=promoterPct+passivePct+detractorPct;
+            promoterPct=Math.round(promoterPct*100/total);
+            passivePct=Math.round(passivePct*100/total);
+            const segment=weightedSegment(promoterPct,passivePct,year*10000+month*500+day*17+i*13+groupIndex);
+            responses.push({id:`SR-${responses.length+1}`,date:iso(current),department:dept.name,assignmentGroup:group.name,score:scoreFromSegment(segment,i+groupIndex+deptIndex+day),segment});
+          }
+        });
+      });
+    }
+    return responses;
+  }
+  const surveyResponses = buildSurveyResponses();
+
+  // Pre-aggregated daily index: fast queries, no repeated scanning of raw survey rows.
+  const dailyIndex = new Map();
+  function emptyCounts(){return{responses:0,promoters:0,passives:0,detractors:0};}
+  function addAgg(key,row){
+    if(!dailyIndex.has(key)) dailyIndex.set(key,emptyCounts());
+    const a=dailyIndex.get(key); a.responses++;
+    if(row.segment==='promoter')a.promoters++; else if(row.segment==='passive')a.passives++; else a.detractors++;
+  }
+  surveyResponses.forEach(r=>{
+    addAgg(`${r.date}||ALL||`,r);
+    addAgg(`${r.date}||${r.department}||`,r);
+    addAgg(`${r.date}||${r.department}||${r.assignmentGroup}`,r);
+  });
+  function mergeCounts(target,source){target.responses+=source.responses;target.promoters+=source.promoters;target.passives+=source.passives;target.detractors+=source.detractors;return target;}
+  function aggToMetrics(c){
+    if(!c.responses)return{responses:0,promoters:0,passives:0,detractors:0,nps:0};
+    return{responses:c.responses,promoters:Math.round(c.promoters*100/c.responses),passives:Math.round(c.passives*100/c.responses),detractors:Math.round(c.detractors*100/c.responses),nps:Math.round((c.promoters-c.detractors)*100/c.responses)};
+  }
+  function aggregateWindow(start,end,scope={}){
+    if(!start || !end || start > end) return aggToMetrics(emptyCounts());
+    const total=emptyCounts();
+    for(let d=new Date(start); d<=end; d=addDays(d,1)){
+      const key=`${dayKey(d)}||${scope.department||'ALL'}||${scope.assignmentGroup||''}`;
+      mergeCounts(total,dailyIndex.get(key)||emptyCounts());
+    }
+    return aggToMetrics(total);
+  }
+
+  function selectedDepartment(){return departments.find(d=>d.name===selectedDepartmentName);}
+  function allGroups(){return departments.flatMap(d=>d.groups.map(g=>({...g,department:d.name})));}
+
+  function validCustomRange(){
+    const today = new Date();
+    let from = fromDateInput?.value ? parseISO(fromDateInput.value) : addMonths(today,-1);
+    let to = toDateInput?.value ? parseISO(toDateInput.value) : today;
+    if(from > to) [from,to] = [to,from];
+    return {from,to};
+  }
+
+  function currentBaseWindow(chartKey='composition'){
+    const today=new Date();
+    const range=dateRange?.value || 'month';
+    const offset=chartOffsets[chartKey]||0;
+    if(range==='custom'){
+      const {from,to}=validCustomRange();
+      return {start:from,end:to,label:'Custom range'};
+    }
+    if(range==='year'){
+      const y=selectedYear()+offset;
+      const end=(y===today.getFullYear()) ? today : new Date(y,11,31);
+      return{start:new Date(y,0,1),end,label:`Year ${y}`};
+    }
+    if(range==='quarter'){
+      const baseMonth=selectedMonth();
+      const baseYear=selectedYear();
+      const baseQuarterStart=Math.floor(baseMonth/3)*3;
+      const shifted=addMonths(new Date(baseYear,baseQuarterStart,1),offset*3);
+      const qStart=Math.floor(shifted.getMonth()/3)*3;
+      let end=new Date(shifted.getFullYear(),qStart+3,0);
+      if(shifted.getFullYear()===today.getFullYear()&&Math.floor(shifted.getMonth()/3)===Math.floor(today.getMonth()/3))end=today;
+      return{start:new Date(shifted.getFullYear(),qStart,1),end,label:`Q${Math.floor(qStart/3)+1} ${shifted.getFullYear()}`};
+    }
+    const shifted=addMonths(new Date(selectedYear(),selectedMonth(),1),offset);
+    let end=new Date(shifted.getFullYear(),shifted.getMonth()+1,0);
+    if(shifted.getFullYear()===today.getFullYear()&&shifted.getMonth()===today.getMonth())end=today;
+    return{start:new Date(shifted.getFullYear(),shifted.getMonth(),1),end,label:shifted.toLocaleString('en-GB',{month:'long',year:'numeric'})};
+  }
+
+  function getWindowConfig(chartKey=activeChartKey){
+    const base=currentBaseWindow(chartKey), g=getEffectiveGranularity();
+    if(g==='monthly'){
+      const months=[]; const cursor=new Date(base.start.getFullYear(),base.start.getMonth(),1);
+      while(cursor<=base.end){months.push(new Date(cursor));cursor.setMonth(cursor.getMonth()+1);}
+      return{type:'monthly',start:base.start,end:base.end,months,label:base.label};
+    }
+    if(g==='weekly'){
+      const weeks=[]; let cursor=startOfWeek(base.start);
+      while(cursor<=base.end){weeks.push(new Date(cursor));cursor=addDays(cursor,7);}
+      return{type:'weekly',start:base.start,end:base.end,weeks,label:base.label};
+    }
+    return{type:'daily',start:base.start,end:base.end,label:base.label};
+  }
+  function bucketWindows(chartKey=activeChartKey){
+    const cfg=getWindowConfig(chartKey);
+    if(cfg.type==='monthly')return cfg.months.map(m=>{const start=new Date(m.getFullYear(),m.getMonth(),1);let end=new Date(m.getFullYear(),m.getMonth()+1,0);if(start<cfg.start)start.setTime(cfg.start.getTime());if(end>cfg.end)end=cfg.end;return{start,end};});
+    if(cfg.type==='weekly')return cfg.weeks.map(w=>({start:w<cfg.start?cfg.start:w,end:addDays(w,6)>cfg.end?cfg.end:addDays(w,6)}));
+    const out=[]; for(let d=new Date(cfg.start); d<=cfg.end; d=addDays(d,1))out.push({start:d,end:d}); return out;
+  }
+  function labels(chartKey=activeChartKey){
+    return bucketWindows(chartKey).map(w=>{
+      const g=getEffectiveGranularity();
+      if(g==='monthly')return formatMonth(w.start);
+      if(g==='weekly')return `${formatDay(w.start)}–${formatDay(w.end)}`;
+      return formatDay(w.start);
+    });
+  }
+  function chartLabels(key){return labels(key);}
+  function fullPeriodRange(key='composition'){const w=currentBaseWindow(key);return`${formatFullDay(w.start)} → ${formatFullDay(w.end)}`;}
+  function chartPeriodTitle(key){return`${granularityLabel()} • ${fullPeriodRange(key)}`;}
+  function compositionPeriodTitle(){const w=currentBaseWindow('composition');return`${w.label} • ${formatFullDay(w.start)} → ${formatFullDay(w.end)}`;}
+  function aggregateByBuckets(key,scope={}){return bucketWindows(key).map(w=>aggregateWindow(w.start,w.end,scope));}
+  function metricValuesFromAgg(aggs,metric){return aggs.map(a=>metric==='nps'?a.nps:a[metric]);}
+  function zoomYAxis(values,minBound=0,maxBound=100){const nums=values.flat().filter(Number.isFinite);if(!nums.length)return{min:minBound,max:maxBound};const min=Math.min(...nums),max=Math.max(...nums),span=Math.max(1,max-min),pad=Math.max(1,Math.ceil(span*.22));return{min:Math.max(minBound,Math.floor(min-pad)),max:Math.min(maxBound,Math.ceil(max+pad))};}
+
+  function comparisonWindow(){
+    const mode=document.getElementById('comparisonMode')?.value||'previous';
+    if(mode==='none')return null;
+    const cur=currentBaseWindow('composition');
+    if(mode==='lastYear'){const s=new Date(cur.start),e=new Date(cur.end);s.setFullYear(s.getFullYear()-1);e.setFullYear(e.getFullYear()-1);return{start:s,end:e};}
+    const days=Math.max(1,Math.round((cur.end-cur.start)/86400000)+1);const end=addDays(cur.start,-1);return{start:addDays(end,-(days-1)),end};
+  }
+  function comparisonLabel(){const mode=document.getElementById('comparisonMode')?.value||'previous';const win=comparisonWindow();if(!win)return'No comparison';return`${mode==='lastYear'?'Same period last year':'Previous period'}: ${formatFullDay(win.start)} → ${formatFullDay(win.end)}`;}
+  function weighted(){const scope=selectedDepartmentName?{department:selectedDepartmentName}:{};const cur=currentBaseWindow('composition');const a=aggregateWindow(cur.start,cur.end,scope);const win=comparisonWindow();const prev=win?aggregateWindow(win.start,win.end,scope):{nps:0};return{...a,previous:prev.nps,rate:a.responses?12:0};}
+  function canNavigateForward(key){return (chartOffsets[key]||0)<0;}
+  function updateChartNavTooltips(){document.querySelectorAll('[data-chart-nav]').forEach(b=>{const key=b.dataset.chartNav,dir=Number(b.dataset.dir||0);b.disabled=dir>0?!canNavigateForward(key):false;});}
+  function updatePeriodExplorer(){
+    const label=`${compositionPeriodTitle()} • ${granularityLabel()}`;
+    safeText('periodCurrentLabel',label); safeText('periodSummaryLabel',label);
+    safeText('periodExplorerSubtitle',`Every chart uses the same effective breakout: ${granularityLabel()}. Range controls define the reporting window.`);
+  }
+
+  function renderKpis(){
+    const s=weighted(), mode=document.getElementById('comparisonMode')?.value||'previous';
+    safeText('kpiNps',formatNps(s.nps));
+    safeText('kpiDelta',mode==='none'?'No comparison selected':`${formatNps(s.nps-s.previous)} vs ${mode==='lastYear'?'same period last year':'previous period'}`);
+    safeText('kpiResponses',s.responses.toLocaleString());
+    safeText('kpiRate',`${s.rate}%`);
+    safeText('compositionPeriodLabel',compositionPeriodTitle());
+    safeText('compositionPeriodCaption',`${selectedDepartmentName||'All IT departments'} • ${compositionPeriodTitle()}.${readabilityNote()}`);
+    [['summaryPromoter',s.promoters],['summaryPassive',s.passives],['summaryDetractor',s.detractors]].forEach(([id,v])=>{const el=document.getElementById(id);if(el){el.style.width=`${Math.max(1,v)}%`;el.textContent=`${v}%`;}});
+    safeText('promoterCount',Math.round(s.responses*s.promoters/100).toLocaleString());
+    safeText('passiveCount',Math.round(s.responses*s.passives/100).toLocaleString());
+    safeText('detractorCount',Math.round(s.responses*s.detractors/100).toLocaleString());
+  }
+
+  function chartZoom(key){
+    const count = chartLabels(key).length;
+    if(count <= 14) return [];
+    const visible = getEffectiveGranularity() === 'daily' ? 14 : getEffectiveGranularity() === 'weekly' ? 16 : 12;
+    const start = Math.max(0, 100 - Math.round((visible / count) * 100));
+    return [
+      {type:'inside', start, end:100, zoomLock:false},
+      {type:'slider', height:18, bottom:12, start, end:100, brushSelect:false, showDetail:false}
+    ];
+  }
+
+  const compactLegend = {top:0,type:'scroll',itemWidth:9,itemHeight:9,icon:'circle',textStyle:{color:'#64748b',fontSize:11,fontWeight:700}};
+  function renderSentimentTrend(){activeChartKey='sentiment';const scope=selectedDepartmentName?{department:selectedDepartmentName}:{};const aggs=aggregateByBuckets('sentiment',scope);const p=metricValuesFromAgg(aggs,'promoters'),pa=metricValuesFromAgg(aggs,'passives'),d=metricValuesFromAgg(aggs,'detractors'),axis=zoomYAxis([p,pa,d],0,100);safeText('sentimentTrendLabel',chartPeriodTitle('sentiment'));charts.sentimentTrend?.setOption({color:sentimentColors,tooltip:{trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>`${v}%`},legend:compactLegend,grid:{left:42,right:24,top:48,bottom:58},dataZoom:chartZoom('sentiment'),xAxis:{type:'category',data:chartLabels('sentiment'),axisLabel:{color:'#64748b',fontSize:10,rotate:getEffectiveGranularity()==='monthly'?0:35,hideOverlap:true}},yAxis:{type:'value',min:axis.min,max:axis.max,axisLabel:{formatter:'{value}%',color:'#64748b'},splitLine:{lineStyle:{color:'#eef2f7'}}},series:[{name:'Promoters',type:'bar',data:p,barMaxWidth:24},{name:'Passives',type:'bar',data:pa,barMaxWidth:24},{name:'Detractors',type:'bar',data:d,barMaxWidth:24}]},true);}
+  function departmentAgg(name,key){const w=currentBaseWindow(key);return aggregateWindow(w.start,w.end,{department:name});}
+  function renderDepartmentRanking(){
+    activeChartKey='departmentRanking';
+    safeText('departmentRankingLabel',`Ranked by NPS • ${chartPeriodTitle('departmentRanking')}`);
+    const target=30;
+    const ranked=departments.map(d=>({...d,...departmentAgg(d.name,'departmentRanking')})).sort((a,b)=>b.nps-a.nps);
+    const meeting=ranked.filter(d=>d.nps>=target);
+    const acceleration=ranked.filter(d=>d.nps<target);
+    const dividerName='──────── Target +30 ────────';
+    const rows=[
+      ...meeting,
+      {name:dividerName,nps:null,responses:0,promoters:0,passives:0,detractors:0,divider:true},
+      ...acceleration
+    ];
+    const barData=rows.map(d=>d.divider?null:d.nps);
+    charts.departmentRanking?.setOption({
+      tooltip:{
+        trigger:'axis',
+        axisPointer:{type:'shadow'},
+        formatter:p=>{
+          const d=rows.find(x=>x.name===p[0].name);
+          if(!d || d.divider) return '<strong>Target +30</strong><br/>Departments above this separator meet target.<br/>Departments below are below target.';
+          return`<strong>${d.name}</strong><br/>NPS: <strong>${formatNps(d.nps)}</strong><br/>Responses: ${d.responses}<br/>Promoters: ${d.promoters}%<br/>Passives: ${d.passives}%<br/>Detractors: ${d.detractors}%<br/><br/><em>Click to drill down</em>`;
+        }
+      },
+      grid:{left:170,right:56,top:30,bottom:32},
+      xAxis:{type:'value',min:-100,max:100,axisLabel:{color:'#64748b'},splitLine:{lineStyle:{color:'#eef2f7'}}},
+      yAxis:{
+        type:'category',
+        inverse:true,
+        data:rows.map(d=>d.name),
+        axisLabel:{
+          color:v=>v===dividerName?'#dc2626':'#111827',
+          fontWeight:v=>v===dividerName?950:800,
+          fontSize:v=>v===dividerName?12:12
+        },
+        axisTick:{show:false},
+        axisLine:{show:false}
+      },
+      graphic:[
+        {type:'text',left:170,top:6,style:{text:'Meeting Target',fill:'#166534',font:'900 12px Inter, sans-serif'}},
+      ],
+      series:[{
+        type:'bar',
+        data:barData,
+        barWidth:18,
+        markLine:{
+          symbol:'none',
+          silent:true,
+          label:{formatter:'Target +30',color:'#dc2626',fontWeight:900,position:'insideEndTop'},
+          lineStyle:{color:'#dc2626',type:'dashed',width:2},
+          data:[{yAxis:dividerName}]
+        },
+        itemStyle:{borderRadius:[0,10,10,0],color:p=>p.value>=50?'#16a34a':p.value>=20?'#64748b':'#dc2626'},
+        label:{show:true,position:'right',formatter:p=>p.value==null?'':formatNps(p.value),color:'#111827',fontWeight:900}
+      }]
+    },true);
+    charts.departmentRanking?.off('click');
+    charts.departmentRanking?.on('click',p=>{
+      const row=rows.find(x=>x.name===p.name);
+      if(!row || row.divider) return;
+      selectedDepartmentName=p.name;
+      renderAll();
+      document.getElementById('assignmentSection')?.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+  function renderDepartmentTrend(){activeChartKey='departmentTrend';const metric='nps',depts=selectedDepartmentName?[selectedDepartment()]:departments,seriesData=depts.map(d=>metricValuesFromAgg(aggregateByBuckets('departmentTrend',{department:d.name}),metric)),axis=zoomYAxis(seriesData,-100,100);safeText('departmentTrendLabel',`NPS • ${chartPeriodTitle('departmentTrend')}`);charts.departmentTrend?.setOption({color:colors,tooltip:{trigger:'axis',order:'valueDesc',valueFormatter:v=>formatNps(v)},legend:compactLegend,grid:{left:42,right:24,top:48,bottom:58},dataZoom:chartZoom('departmentTrend'),xAxis:{type:'category',boundaryGap:false,data:chartLabels('departmentTrend'),axisLabel:{color:'#64748b',fontSize:10,rotate:getEffectiveGranularity()==='monthly'?0:30,hideOverlap:true}},yAxis:{type:'value',min:axis.min,max:axis.max,axisLabel:{formatter:'{value}',color:'#64748b'},splitLine:{lineStyle:{color:'#eef2f7'}}},series:depts.map((d,i)=>({name:d.name,type:'line',smooth:true,showSymbol:chartLabels('departmentTrend').length<=16,symbol:'circle',symbolSize:6,lineStyle:{width:3},itemStyle:{borderWidth:2},emphasis:{focus:'series',scale:1.4},data:seriesData[i]}))},true);}
+  function renderDepartmentDistribution(){activeChartKey='departmentDistribution';safeText('departmentDistributionLabel',chartPeriodTitle('departmentDistribution'));const rows=departments.map(d=>({...d,...departmentAgg(d.name,'departmentDistribution')}));charts.departmentDistribution?.setOption({color:sentimentColors,tooltip:{trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>`${v}%`},legend:compactLegend,grid:{left:150,right:32,top:48,bottom:42},xAxis:{type:'value',max:100,axisLabel:{formatter:'{value}%',color:'#64748b'},splitLine:{lineStyle:{color:'#eef2f7'}}},yAxis:{type:'category',data:rows.map(d=>d.name).reverse(),axisLabel:{color:'#111827',fontWeight:800}},series:[{name:'Promoters',type:'bar',data:rows.map(d=>d.promoters).reverse(),barWidth:10,label:{show:true,position:'right',formatter:'{c}%',fontWeight:900,color:'#111827'}},{name:'Passives',type:'bar',data:rows.map(d=>d.passives).reverse(),barWidth:10,label:{show:true,position:'right',formatter:'{c}%',fontWeight:900,color:'#111827'}},{name:'Detractors',type:'bar',data:rows.map(d=>d.detractors).reverse(),barWidth:10,label:{show:true,position:'right',formatter:'{c}%',fontWeight:900,color:'#111827'}}]},true);}
+  function renderHotspot(){activeChartKey='hotspot';safeText('hotspotLabel',chartPeriodTitle('hotspot'));const w=currentBaseWindow('hotspot'),rows=allGroups().map(g=>({...g,...aggregateWindow(w.start,w.end,{department:g.department,assignmentGroup:g.name})})).sort((a,b)=>a.detractors-b.detractors).slice(-8);charts.hotspot?.setOption({tooltip:{trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>`${v}%`},grid:{left:155,right:42,top:18,bottom:32},xAxis:{type:'value',max:60,axisLabel:{formatter:'{value}%',color:'#64748b'},splitLine:{lineStyle:{color:'#eef2f7'}}},yAxis:{type:'category',data:rows.map(g=>g.name),axisLabel:{color:'#111827',fontWeight:800}},series:[{type:'bar',data:rows.map(g=>g.detractors),barWidth:18,itemStyle:{color:'#dc2626',borderRadius:[0,10,10,0]},label:{show:true,position:'right',formatter:'{c}%',fontWeight:900}}]},true);}
+  function renderAssignmentSection(){const has=!!selectedDepartmentName;document.getElementById('assignmentPlaceholder')?.classList.toggle('hidden',has);document.getElementById('assignmentSection')?.classList.toggle('hidden',!has);if(!has)return;const dept=selectedDepartment(),groups=dept.groups.map(g=>({...g,department:dept.name}));safeText('selectedDepartmentCrumb',dept.name);safeText('selectedDepartmentTitle',dept.name);safeText('tableLabel',dept.name);renderAssignmentRanking(groups);renderAssignmentDistribution(groups);renderAssignmentTrend(groups);renderAssignmentRisk(groups);renderAssignmentTable(groups);setTimeout(()=>['assignmentRanking','assignmentDistribution','assignmentTrend','assignmentRisk'].forEach(k=>charts[k]?.resize()),0);}
+  function groupAgg(g,key){const w=currentBaseWindow(key);return aggregateWindow(w.start,w.end,{department:g.department,assignmentGroup:g.name});}
+  function renderAssignmentRanking(groups){activeChartKey='assignmentRanking';safeText('assignmentRankingLabel',`Ranked by NPS • ${chartPeriodTitle('assignmentRanking')}`);const rows=groups.map(g=>({...g,...groupAgg(g,'assignmentRanking')})).sort((a,b)=>a.nps-b.nps);charts.assignmentRanking?.setOption({tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},grid:{left:150,right:56,top:18,bottom:32},xAxis:{type:'value',min:-100,max:100,axisLabel:{color:'#64748b'},splitLine:{lineStyle:{color:'#eef2f7'}}},yAxis:{type:'category',data:rows.map(g=>g.name),axisLabel:{color:'#111827',fontWeight:800},axisTick:{show:false},axisLine:{show:false}},series:[{type:'bar',data:rows.map(g=>g.nps),barWidth:18,itemStyle:{borderRadius:[0,10,10,0],color:p=>p.value>=50?'#16a34a':p.value>=20?'#64748b':'#dc2626'},label:{show:true,position:'right',formatter:p=>formatNps(p.value),color:'#111827',fontWeight:900}}]},true);}
+  function renderAssignmentDistribution(groups){activeChartKey='assignmentDistribution';safeText('assignmentDistributionLabel',chartPeriodTitle('assignmentDistribution'));const rows=groups.map(g=>({...g,...groupAgg(g,'assignmentDistribution')}));charts.assignmentDistribution?.setOption({color:sentimentColors,tooltip:{trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>`${v}%`},legend:compactLegend,grid:{left:150,right:32,top:48,bottom:42},xAxis:{type:'value',max:100,axisLabel:{formatter:'{value}%',color:'#64748b'},splitLine:{lineStyle:{color:'#eef2f7'}}},yAxis:{type:'category',data:rows.map(g=>g.name).reverse(),axisLabel:{color:'#111827',fontWeight:800}},series:[{name:'Promoters',type:'bar',data:rows.map(g=>g.promoters).reverse(),barWidth:10,label:{show:true,position:'right',formatter:'{c}%',fontWeight:900,color:'#111827'}},{name:'Passives',type:'bar',data:rows.map(g=>g.passives).reverse(),barWidth:10,label:{show:true,position:'right',formatter:'{c}%',fontWeight:900,color:'#111827'}},{name:'Detractors',type:'bar',data:rows.map(g=>g.detractors).reverse(),barWidth:10,label:{show:true,position:'right',formatter:'{c}%',fontWeight:900,color:'#111827'}}]},true);}
+  function renderAssignmentTrend(groups){activeChartKey='assignmentTrend';safeText('assignmentTrendLabel',`${selectedDepartmentName} groups • ${chartPeriodTitle('assignmentTrend')}`);const seriesData=groups.map(g=>metricValuesFromAgg(aggregateByBuckets('assignmentTrend',{department:selectedDepartmentName,assignmentGroup:g.name}),'nps')),axis=zoomYAxis(seriesData,-100,100);charts.assignmentTrend?.setOption({color:colors,tooltip:{trigger:'axis',order:'valueDesc',valueFormatter:v=>formatNps(v)},legend:compactLegend,grid:{left:42,right:24,top:48,bottom:58},dataZoom:chartZoom('assignmentTrend'),xAxis:{type:'category',boundaryGap:false,data:chartLabels('assignmentTrend'),axisLabel:{color:'#64748b',fontSize:10,rotate:getEffectiveGranularity()==='monthly'?0:30,hideOverlap:true}},yAxis:{type:'value',min:axis.min,max:axis.max,axisLabel:{color:'#64748b'},splitLine:{lineStyle:{color:'#eef2f7'}}},series:groups.map((g,i)=>({name:g.name,type:'line',smooth:true,showSymbol:chartLabels('departmentTrend').length<=16,showSymbol:chartLabels('assignmentTrend').length<=16,symbol:'circle',symbolSize:6,lineStyle:{width:3},itemStyle:{borderWidth:2},emphasis:{focus:'series',scale:1.4},data:seriesData[i]}))},true);}
+  function renderAssignmentRisk(groups){activeChartKey='assignmentRisk';safeText('assignmentRiskLabel',chartPeriodTitle('assignmentRisk'));const rows=groups.map(g=>({...g,...groupAgg(g,'assignmentRisk')}));charts.assignmentRisk?.setOption({color:['#16a34a','#dc2626'],tooltip:{trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>`${v}%`},legend:compactLegend,grid:{left:150,right:28,top:48,bottom:42},xAxis:{type:'value',max:100,axisLabel:{formatter:'{value}%',color:'#64748b'},splitLine:{lineStyle:{color:'#eef2f7'}}},yAxis:{type:'category',data:rows.map(g=>g.name).reverse(),axisLabel:{color:'#111827',fontWeight:800}},series:[{name:'Promoters',type:'bar',data:rows.map(g=>g.promoters).reverse(),barWidth:14,label:{show:true,position:'right',formatter:'{c}%',fontWeight:900}},{name:'Detractors',type:'bar',data:rows.map(g=>g.detractors).reverse(),barWidth:14,label:{show:true,position:'right',formatter:'{c}%',fontWeight:900}}]},true);}
+  function renderAssignmentTable(groups){const rows=groups.map(g=>({...g,...groupAgg(g,'assignmentRanking')}));safeHTML('detailTable',rows.map(g=>{const win=comparisonWindow()||currentBaseWindow();const prev=aggregateWindow(win.start,win.end,{department:g.department,assignmentGroup:g.name}).nps,change=g.nps-prev;return`<tr><td><strong>${g.name}</strong></td><td>${formatNps(g.nps)}</td><td>${formatNps(prev)}</td><td><span class="pill ${change>=0?'positive':'negative'}">${formatNps(change)}</span></td><td>${g.responses.toLocaleString()}</td><td>${g.promoters}%</td><td>${g.passives}%</td><td>${g.detractors}%</td><td><div class="mini-stack"><span class="promoter" style="width:${Math.max(1,g.promoters)}%">${g.promoters}%</span><span class="passive" style="width:${Math.max(1,g.passives)}%">${g.passives}%</span><span class="detractor" style="width:${Math.max(1,g.detractors)}%">${g.detractors}%</span></div></td></tr>`;}).join(''));}
+  function clearSelection(){selectedDepartmentName=null;renderAll();window.scrollTo({top:0,behavior:'smooth'});}
+  function updateCustomDateFields(){
+    const isCustom=(dateRange?.value||'month')==='custom';
+    document.getElementById('fromDateField')?.classList.toggle('visible', isCustom);
+    document.getElementById('toDateField')?.classList.toggle('visible', isCustom);
+    [fromDateInput,toDateInput].forEach(input=>{ if(input){ input.disabled=!isCustom; input.title=isCustom?'Custom date range is active':'Select Custom Date Range to use this field'; }});
+  }
+  function updateFilterSummary(){
+    const rangeText=dateRange?.options[dateRange.selectedIndex]?.text || 'Month';
+    safeText('filterSummaryLabel', `${rangeText} • ${granularityLabel()}`);
+  }
+  function renderAll(){updateCustomDateFields();updateFilterSummary();updatePeriodExplorer();updateChartNavTooltips();safeText('activePeriodLabel',`Active period: ${compositionPeriodTitle()} • ${granularityLabel()}`);safeText('reportingPeriodLabel',compositionPeriodTitle());safeText('comparisonPeriodLabel',comparisonLabel());safeText('thresholdLabel','+30 NPS Target');renderKpis();renderSentimentTrend();renderDepartmentRanking();renderDepartmentTrend();renderDepartmentDistribution();renderHotspot();renderAssignmentSection();}
+  document.querySelectorAll('[data-chart-nav]').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.chartNav,dir=Number(b.dataset.dir||0);if(dir>0&&!canNavigateForward(key))return;chartOffsets[key]=(chartOffsets[key]||0)+dir;renderAll();}));
+  function resetFilters(){
+    selectedDepartmentName=null;
+    Object.keys(chartOffsets).forEach(k=>chartOffsets[k]=0);
+    if(dateRange) dateRange.value='month';
+    if(granularity) granularity.value='weekly';
+    const yearEl=document.getElementById('yearSelector');
+    const monthEl=document.getElementById('monthSelector');
+    const today=new Date();
+    if(yearEl) yearEl.value=String(today.getFullYear());
+    if(monthEl) monthEl.value=String(today.getMonth());
+    const comparisonEl=document.getElementById('comparisonMode');
+    if(comparisonEl) comparisonEl.value='previous';
+    if(fromDateInput) fromDateInput.value=iso(new Date(today.getFullYear(),today.getMonth(),1));
+    if(toDateInput) toDateInput.value=iso(today);
+    renderAll();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.getElementById('resetFilters')?.addEventListener('click',resetFilters);
+  document.getElementById('backButton')?.addEventListener('click',clearSelection);
+  document.getElementById('clearSelection')?.addEventListener('click',clearSelection);
+  document.getElementById('filterToggle')?.addEventListener('click',()=>document.getElementById('filters')?.classList.toggle('open'));
+  ['dateRange','granularity','comparisonMode','fromDate','toDate','yearSelector','monthSelector'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>{Object.keys(chartOffsets).forEach(k=>chartOffsets[k]=0);renderAll();});});
+  document.getElementById('periodPrev')?.addEventListener('click',()=>{Object.keys(chartOffsets).forEach(k=>chartOffsets[k]-=1);renderAll();});
+  document.getElementById('periodNext')?.addEventListener('click',()=>{Object.keys(chartOffsets).forEach(k=>{if(chartOffsets[k]<0)chartOffsets[k]+=1;});renderAll();});
+  document.getElementById('periodToday')?.addEventListener('click',()=>{Object.keys(chartOffsets).forEach(k=>chartOffsets[k]=0);renderAll();});
+  if(document.getElementById('periodBack'))document.getElementById('periodBack').style.display='none';
+  const today=new Date();
+  if(fromDateInput && !fromDateInput.value) fromDateInput.value=iso(new Date(today.getFullYear(),today.getMonth(),1));
+  if(toDateInput && !toDateInput.value) toDateInput.value=iso(today);
+  window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c?.resize()));
+
+  document.querySelectorAll('.period-step[data-level]').forEach(button=>button.addEventListener('click',()=>{
+    const level=button.dataset.level;
+    if(level==='year'){ dateRange.value='year'; granularity.value='monthly'; }
+    if(level==='month'){ dateRange.value='month'; granularity.value='weekly'; }
+    if(level==='week'){ dateRange.value='month'; granularity.value='daily'; }
+    if(level==='day'){ dateRange.value='custom'; granularity.value='daily'; const today=new Date(); fromDateInput.value=iso(today); toDateInput.value=iso(today); }
+    Object.keys(chartOffsets).forEach(k=>chartOffsets[k]=0);
+    renderAll();
+  }));
+
+  function updatePeriodStepState(){
+    const range=dateRange?.value||'month', g=getEffectiveGranularity();
+    document.querySelectorAll('.period-step').forEach(btn=>btn.classList.remove('active'));
+    const active = range==='year' ? 'year' : range==='month' && g==='weekly' ? 'month' : range==='month' && g==='daily' ? 'week' : range==='custom' && g==='daily' ? 'day' : 'month';
+    document.querySelector(`.period-step[data-level="${active}"]`)?.classList.add('active');
+    safeText('yearStepLabel',String(selectedYear()));
+    safeText('monthStepLabel',new Date(selectedYear(),selectedMonth(),1).toLocaleString('en-GB',{month:'long'}));
+    safeText('weekStepLabel',range==='month' && g==='daily' ? 'Daily within month' : 'Choose week/day view');
+    safeText('dayStepLabel',range==='custom' ? fullPeriodRange('composition') : 'Single day custom');
+  }
+
+  function downloadTextFile(filename, content, type='text/plain'){
+    const blob=new Blob([content],{type});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),500);
+  }
+  function exportCsv(){
+    const w=currentBaseWindow('composition');
+    const rows=[['Scope','Name','NPS','Responses','Promoters %','Passives %','Detractors %','Period Start','Period End']];
+    departments.forEach(d=>{ const m=aggregateWindow(w.start,w.end,{department:d.name}); rows.push(['Department',d.name,m.nps,m.responses,m.promoters,m.passives,m.detractors,iso(w.start),iso(w.end)]); });
+    allGroups().forEach(g=>{ const m=aggregateWindow(w.start,w.end,{department:g.department,assignmentGroup:g.name}); rows.push([g.department,g.name,m.nps,m.responses,m.promoters,m.passives,m.detractors,iso(w.start),iso(w.end)]); });
+    downloadTextFile(`nps-dashboard-${iso(w.start)}-${iso(w.end)}.csv`,rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv');
+  }
+  document.getElementById('exportExcel')?.addEventListener('click',exportCsv);
+  document.getElementById('exportPdf')?.addEventListener('click',()=>window.print());
+  const originalRenderAll = renderAll;
+  renderAll = function(){ originalRenderAll(); updatePeriodStepState(); };
+  renderAll();
+})();
+</script>
+
