@@ -25216,6 +25216,79 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
     }
 
+    .connect-toggle-shell {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 10px;
+      border: 1px solid #dbe4ef;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      white-space: nowrap;
+    }
+
+    .connect-toggle-label {
+      font-size: 12px;
+      font-weight: 900;
+      color: #334155;
+      letter-spacing: .01em;
+    }
+
+    .connect-nulls-toggle {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      width: 58px;
+      min-width: 58px;
+      height: 30px;
+      min-height: 30px;
+      padding: 0 8px 0 30px;
+      border-radius: 999px;
+      border: 1px solid #fb923c;
+      background: #fed7aa;
+      color: #9a3412;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.12);
+      transform: none;
+    }
+
+    .connect-nulls-toggle:hover {
+      transform: none;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.12), 0 6px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    .connect-nulls-toggle.active {
+      justify-content: flex-start;
+      padding: 0 30px 0 8px;
+      background: #16a34a;
+      border-color: #16a34a;
+      color: #ffffff;
+    }
+
+    .connect-toggle-knob {
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.22);
+      transition: left .18s ease;
+    }
+
+    .connect-nulls-toggle.active .connect-toggle-knob {
+      left: 32px;
+    }
+
+    .connect-toggle-state {
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 950;
+      pointer-events: none;
+    }
+
     .primary {
       background: var(--primary);
       border-color: var(--primary);
@@ -25433,6 +25506,12 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       min-width: 32px;
     }
 
+    .seg[style*="display: none"] {
+      min-width: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+    }
+
     .promoter { background: var(--green); }
     .passive { background: var(--orange); }
     .detractor { background: var(--red); }
@@ -25512,18 +25591,44 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
     .selected-banner {
       margin-bottom: 22px;
       border: 1px solid #bfdbfe;
-      background: #eff6ff;
-      color: #1e3a8a;
+      border-left: 5px solid #2563eb;
+      background: #f1f7ff;
+      color: #0f172a;
       border-radius: var(--radius);
-      padding: 16px 18px;
+      padding: 17px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.10);
     }
 
     .selected-banner strong {
-      font-size: 18px;
+      font-size: 17px;
+      font-weight: 850;
+      color: #1e3a8a;
+      letter-spacing: -0.01em;
+    }
+
+    .selected-banner div div {
+      color: #475569;
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .selected-banner button {
+      background: #ffffff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+      font-weight: 850;
+    }
+
+    .selected-banner button:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1e40af;
     }
 
     .placeholder {
@@ -25817,17 +25922,38 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       gap: 5px;
     }
 
+    .comparison-summary div:nth-child(2) {
+      background: #f1f7ff;
+      border: 1px solid #bfdbfe;
+      border-left: 5px solid #2563eb;
+      border-radius: 16px;
+      padding: 13px 16px;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.09);
+    }
+
     .comparison-summary strong {
-      font-size: 12px;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.055em;
       color: #64748b;
+      font-weight: 850;
+    }
+
+    .comparison-summary div:nth-child(2) strong {
+      color: #1d4ed8;
     }
 
     .comparison-summary span {
       font-size: 14px;
-      font-weight: 900;
+      font-weight: 850;
       color: #111827;
+    }
+
+    .comparison-summary div:nth-child(2) span {
+      color: #0f172a;
+      font-size: 14px;
+      font-weight: 850;
+      line-height: 1.35;
     }
 
     @media (max-width: 760px) {
@@ -26247,6 +26373,13 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
 <div class="subtitle" id="activePeriodLabel" style="font-weight:800;color:#2563eb;">Active period: May 2026 • 1 May 2026 → 31 May 2026 • Weekly breakout</div>
 </div>
 <div class="actions">
+<div class="connect-toggle-shell" title="Toggle how trend line charts handle missing NPS values">
+<span class="connect-toggle-label">Connect gaps</span>
+<button type="button" id="connectNullsToggle" class="connect-nulls-toggle active" data-mode="connect" aria-pressed="true" aria-label="Connect missing values">
+<span class="connect-toggle-knob"></span>
+<span id="connectNullsState" class="connect-toggle-state">ON</span>
+</button>
+</div>
 <button id="exportPdf">Export PDF</button>
 <button class="primary" id="exportExcel">Export Excel</button>
 </div>
@@ -26607,6 +26740,8 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
 
   const dateRange = document.getElementById('dateRange');
   const granularity = document.getElementById('granularity');
+  const connectNullsToggle = document.getElementById('connectNullsToggle');
+  const connectNullsState = document.getElementById('connectNullsState');
   const fromDateInput = document.getElementById('fromDate');
   const toDateInput = document.getElementById('toDate');
   const yearSelector = document.getElementById('yearSelector');
@@ -26897,6 +27032,32 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
     };
   }
 
+  function setConnectNullsToggleMode(mode) {
+    const nextMode = mode === 'gap' ? 'gap' : 'connect';
+    if (!connectNullsToggle) return;
+
+    connectNullsToggle.dataset.mode = nextMode;
+    connectNullsToggle.setAttribute('aria-pressed', String(nextMode === 'connect'));
+    connectNullsToggle.setAttribute('aria-label', nextMode === 'connect' ? 'Connect missing values on' : 'Connect missing values off');
+    connectNullsToggle.classList.toggle('active', nextMode === 'connect');
+    if (connectNullsState) connectNullsState.textContent = nextMode === 'connect' ? 'ON' : 'OFF';
+  }
+
+  function chartConnectNulls() {
+    return (connectNullsToggle?.dataset.mode || 'connect') === 'connect';
+  }
+
+  function syncConnectNullsMode() {
+    const stored = localStorage.getItem('npsConnectNullsMode');
+    setConnectNullsToggleMode(stored && ['connect', 'gap'].includes(stored) ? stored : 'connect');
+  }
+
+  function toggleConnectNullsMode() {
+    const nextMode = chartConnectNulls() ? 'gap' : 'connect';
+    setConnectNullsToggleMode(nextMode);
+    localStorage.setItem('npsConnectNullsMode', nextMode);
+  }
+
   function getEffectiveGranularity() {
     const range = dateRange?.value || 'month';
     const base = currentBaseWindow('composition');
@@ -27171,7 +27332,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
     const mode = comparisonMode?.value || 'previous';
     const window = comparisonWindow();
     if (!window) return 'No comparison';
-    return `${mode === 'lastYear' ? 'Same period last year' : 'Previous period'}: ${formatFullDay(window.start)} → ${formatFullDay(window.end)}`;
+    return `${mode === 'lastYear' ? 'Same date last year' : 'Previous date'}: ${formatFullDay(window.start)} → ${formatFullDay(window.end)}`;
   }
 
   function filterScopeLabel() {
@@ -27262,8 +27423,16 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
     ].forEach(([id, value]) => {
       const el = document.getElementById(id);
       if (el) {
-        el.style.width = `${value}%`;
-        el.textContent = `${value}%`;
+        const numericValue = Number(value) || 0;
+        if (numericValue <= 0) {
+          el.style.display = 'none';
+          el.style.width = '0%';
+          el.textContent = '';
+        } else {
+          el.style.display = '';
+          el.style.width = `${numericValue}%`;
+          el.textContent = `${Math.round(numericValue)}%`;
+        }
       }
     });
 
@@ -27473,14 +27642,16 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
     const longestDepartmentLabel = Math.max(0, ...departmentLabelChars);
 
     const departmentAxisLabelWidth = Math.min(
-      520,
-      Math.max(195, Math.ceil(longestDepartmentLabel * 7.4))
+      310,
+      Math.max(180, Math.ceil(longestDepartmentLabel * 6.2))
     );
 
     const departmentGridLeft = Math.min(
-      590,
-      Math.max(230, Math.ceil(departmentAxisLabelWidth + 42))
+      340,
+      Math.max(210, Math.ceil(departmentAxisLabelWidth + 20))
     );
+
+    const departmentGridRight = 64;
 
     const departmentLabelCharsPerLine = Math.max(
       18,
@@ -27512,7 +27683,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
           return `<strong>${escapeHtml(row.name)}</strong><br/>NPS: <strong>${formatNps(row.nps)}</strong><br/>Responses: ${row.responses}<br/>Promoters: ${row.promoters}%<br/>Passives: ${row.passives}%<br/>Detractors: ${row.detractors}%<br/><br/><em>Click to drill down</em>`;
         }
       },
-      grid: { left: departmentGridLeft, right: 76, top: 32, bottom: 48, containLabel: false },
+      grid: { left: departmentGridLeft, right: departmentGridRight, top: 32, bottom: 48, containLabel: false },
       xAxis: {
         type: 'value',
         min: -100,
@@ -27530,9 +27701,10 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
         data: rows.map(row => row.name),
         axisLabel: {
           interval: 0,
-          margin: 16,
+          margin: 8,
           width: departmentAxisLabelWidth,
-          overflow: 'break',
+          overflow: 'truncate',
+          ellipsis: '…',
           lineHeight: 14,
           formatter: value => value === dividerName ? '{line|━ ━ ━ ━ } {text|Target +30}' : value,
           rich: {
@@ -27571,7 +27743,11 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
           distance: 8,
           formatter: params => Number.isFinite(Number(params.value)) ? formatNps(params.value) : '',
           color: '#111827',
-          fontWeight: 900
+          fontWeight: 850,
+          fontSize: 11,
+          align: 'left',
+          width: 48,
+          overflow: 'none'
         },
         labelLayout: safeBarLabelLayout,
         markLine: {
@@ -27657,7 +27833,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       },
       yAxis: { type: 'value', min: axis.min, max: axis.max, axisLabel: { color: '#64748b', hideOverlap: true }, splitLine: { lineStyle: { color: '#eef2f7' } } },
       series: seriesRows.map((row, index) => ({
-        name: row.department.name, type: 'line', smooth: true, connectNulls: false,
+        name: row.department.name, type: 'line', smooth: true, connectNulls: chartConnectNulls(),
         showSymbol: true,
         symbol: 'circle', symbolSize: 10, lineStyle: { width: 3 }, itemStyle: { borderWidth: 2 },
         emphasis: { focus: 'series', scale: true }, data: row.data
@@ -28057,7 +28233,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       },
       yAxis: { type: 'value', min: axis.min, max: axis.max, axisLabel: { color: '#64748b', hideOverlap: true }, splitLine: { lineStyle: { color: '#eef2f7' } } },
       series: seriesRows.map((row, index) => ({
-        name: row.group.name, type: 'line', smooth: true, connectNulls: false,
+        name: row.group.name, type: 'line', smooth: true, connectNulls: chartConnectNulls(),
         showSymbol: true,
         symbol: 'circle', symbolSize: 10, lineStyle: { width: 3 }, itemStyle: { borderWidth: 2 },
         emphasis: { focus: 'series', scale: true }, data: row.data
@@ -28229,7 +28405,9 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
   function resetFilters() {
     selectedDepartmentName = null;
     resetChartOffsets();
-    const today = latestDataDate();
+    syncConnectNullsMode();
+
+  const today = latestDataDate();
     if (dateRange) dateRange.value = 'month';
     if (granularity) granularity.value = 'weekly';
     if (yearSelector) yearSelector.value = String(today.getFullYear());
@@ -28431,6 +28609,12 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       resetChartOffsets();
       renderAll();
     });
+  });
+
+  connectNullsToggle?.addEventListener('click', () => {
+    toggleConnectNullsMode();
+    resetChartOffsets();
+    renderAll();
   });
 
   document.getElementById('periodPrev')?.addEventListener('click', () => {
