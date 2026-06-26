@@ -25464,6 +25464,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       grid-template-columns: 1fr 1.4fr;
       gap: 22px;
       margin-bottom: 22px;
+      align-items: start;
     }
 
     .wide-grid {
@@ -25471,6 +25472,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       grid-template-columns: 1fr 1fr;
       gap: 22px;
       margin-bottom: 22px;
+      align-items: start;
     }
 
     .chart {
@@ -25479,6 +25481,15 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
     }
 
     .chart.tall { height: 380px; }
+
+    #assignmentSection .card {
+      padding: 18px;
+    }
+
+    #assignmentSection .wide-grid {
+      align-items: start;
+    }
+
 
     .composition {
       display: grid;
@@ -27668,7 +27679,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       Math.max(44, departmentMaxLabelLines * 16 + 30)
     );
 
-    setChartHeight('departmentRankingChart', rows.length, 390, departmentRowHeight, 1200);
+    setChartHeight('departmentRankingChart', rows.length, 360, Math.min(departmentRowHeight, 34), 520);
 
     charts.departmentRanking?.setOption({
       tooltip: {
@@ -27727,6 +27738,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
         axisTick: { show: false },
         axisLine: { show: false }
       },
+      dataZoom: assignmentGroupZoom(rows.length, 12),
       series: [{
         type: 'bar',
         data: rows.map(row => row.divider ? null : ({
@@ -28009,12 +28021,21 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
   }
 
 
-  function setChartHeight(chartKey, rowCount, baseHeight = 340, rowHeight = 42, maxHeight = 760) {
-    const el = document.getElementById(chartKey);
+  function setChartHeight(chartKeyOrId, rowCount, baseHeight = 340, rowHeight = 42, maxHeight = 760) {
+    const chartDomId = chartIds[chartKeyOrId] || chartKeyOrId;
+    const el = document.getElementById(chartDomId);
     if (!el) return;
+
     const nextHeight = Math.max(baseHeight, Math.min(maxHeight, rowCount * rowHeight + 120));
     el.style.height = `${nextHeight}px`;
-    charts[chartKey]?.resize();
+
+    const chartKey = charts[chartKeyOrId]
+      ? chartKeyOrId
+      : Object.keys(chartIds).find(key => chartIds[key] === chartDomId);
+
+    requestAnimationFrame(() => {
+      if (chartKey && charts[chartKey]) charts[chartKey].resize();
+    });
   }
 
   function percentLabelFormatter(params) {
@@ -28089,6 +28110,48 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
     fontSize: 11
   };
 
+  function setFixedChartHeight(chartId, height = 440) {
+    const el = document.getElementById(chartId);
+    if (!el) return;
+    el.style.height = `${height}px`;
+
+    const chartKey = Object.keys(chartIds).find(key => chartIds[key] === chartId);
+    requestAnimationFrame(() => {
+      if (chartKey && charts[chartKey]) charts[chartKey].resize();
+    });
+  }
+
+  function assignmentGroupZoom(rowCount, visibleRows = 12) {
+    if (rowCount <= visibleRows) return [];
+    const end = Math.min(100, Math.round((visibleRows / rowCount) * 100));
+    return [
+      {
+        type: 'inside',
+        yAxisIndex: 0,
+        filterMode: 'none',
+        zoomLock: false,
+        start: 0,
+        end
+      },
+      {
+        type: 'slider',
+        yAxisIndex: 0,
+        filterMode: 'none',
+        width: 12,
+        right: 4,
+        top: 58,
+        bottom: 42,
+        start: 0,
+        end,
+        showDetail: false,
+        brushSelect: false,
+        borderColor: '#dbeafe',
+        fillerColor: 'rgba(37, 99, 235, .12)',
+        handleSize: 10
+      }
+    ];
+  }
+
   function renderAssignmentRanking(groups) {
     activeChartKey = 'assignmentRanking';
     safeText('assignmentRankingLabel', `Ranked by NPS • ${chartPeriodTitle('assignmentRanking')}`);
@@ -28097,6 +28160,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       charts.assignmentRanking?.setOption(noDataOption(), true);
       return;
     }
+    setFixedChartHeight('assignmentRankingChart', 440);
     const minValue = Math.min(...rows.map(row => row.nps));
     const maxValue = Math.max(...rows.map(row => row.nps));
     const xMin = minValue < 0 ? -100 : 0;
@@ -28109,13 +28173,13 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
           return `<strong>${escapeHtml(row.name)}</strong><br/>NPS: ${formatNps(row.nps)}<br/>Responses: ${row.responses}<br/>Promoters: ${row.promoters}% • Passives: ${row.passives}% • Detractors: ${row.detractors}%`;
         }
       },
-      grid: { left: 185, right: 56, top: 18, bottom: 32 },
+      grid: { left: 210, right: rows.length > 12 ? 78 : 56, top: 18, bottom: 42, containLabel: false },
       xAxis: { type: 'value', min: xMin, max: xMax, axisLabel: { color: '#64748b', hideOverlap: true }, splitLine: { lineStyle: { color: '#eef2f7' } } },
       yAxis: {
         type: 'category',
         inverse: true,
         data: rows.map(row => row.name),
-        axisLabel: { color: '#111827', fontWeight: 800, fontSize: 10, width: 205, overflow: 'break', lineHeight: 13, margin: 16 },
+        axisLabel: { color: '#111827', fontWeight: 800, fontSize: 10, width: 178, overflow: 'truncate', ellipsis: '…', lineHeight: 13, margin: 8 },
         axisTick: { show: false },
         axisLine: { show: false }
       },
@@ -28142,7 +28206,7 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       charts.assignmentDistribution?.setOption(noDataOption(), true);
       return;
     }
-    setChartHeight('assignmentDistributionChart', rows.length, 360, 52, 820);
+    setFixedChartHeight('assignmentDistributionChart', 440);
     charts.assignmentDistribution?.setOption({
       color: sentimentColors,
       tooltip: {
@@ -28161,14 +28225,15 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
         }
       },
       legend: compactLegend,
-      grid: { left: 245, right: 72, top: 58, bottom: 48, containLabel: false },
+      grid: { left: 210, right: rows.length > 12 ? 92 : 72, top: 58, bottom: 48, containLabel: false },
       xAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%', color: '#64748b' }, splitLine: { lineStyle: { color: '#eef2f7' } } },
       yAxis: {
         type: 'category',
         inverse: true,
         data: rows.map(row => row.name),
-        axisLabel: { color: '#111827', fontWeight: 800, fontSize: 10, width: 205, overflow: 'break', lineHeight: 13, margin: 16 }
+        axisLabel: { color: '#111827', fontWeight: 800, fontSize: 10, width: 178, overflow: 'truncate', ellipsis: '…', lineHeight: 13, margin: 8 }
       },
+      dataZoom: assignmentGroupZoom(rows.length, 12),
       series: [
         { name: 'Promoters', type: 'bar', data: rows.map(row => stackedPercentValue(row.promoters)), barWidth: 8, barGap: '45%', barCategoryGap: '42%', label: safeHorizontalBarLabel, labelLayout: safeBarLabelLayout },
         { name: 'Passives', type: 'bar', data: rows.map(row => stackedPercentValue(row.passives)), barWidth: 8, barGap: '45%', barCategoryGap: '42%', label: safeHorizontalBarLabel, labelLayout: safeBarLabelLayout },
@@ -28249,17 +28314,19 @@ const surveyResponses = NPS_FEEDBACK_DATA.map((item, sourceIndex) => {
       charts.assignmentRisk?.setOption(noDataOption(), true);
       return;
     }
+    setFixedChartHeight('assignmentRiskChart', 440);
     charts.assignmentRisk?.setOption({
       color: ['#16a34a', '#dc2626'],
       tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: value => `${value}%` },
       legend: compactLegend,
-      grid: { left: 185, right: 28, top: 48, bottom: 42 },
+      grid: { left: 210, right: rows.length > 12 ? 76 : 42, top: 48, bottom: 42, containLabel: false },
       xAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%', color: '#64748b' }, splitLine: { lineStyle: { color: '#eef2f7' } } },
       yAxis: {
         type: 'category',
         data: rows.map(row => row.name).reverse(),
-        axisLabel: { color: '#111827', fontWeight: 800, fontSize: 10, width: 205, overflow: 'break', lineHeight: 13, margin: 16 }
+        axisLabel: { color: '#111827', fontWeight: 800, fontSize: 10, width: 178, overflow: 'truncate', ellipsis: '…', lineHeight: 13, margin: 8 }
       },
+      dataZoom: assignmentGroupZoom(rows.length, 12),
       series: [
         { name: 'Promoters', type: 'bar', data: rows.map(row => stackedPercentValue(row.promoters)).reverse(), barWidth: 14, label: { show: true, position: 'right', formatter: percentLabelFormatter, fontWeight: 900 } },
         { name: 'Detractors', type: 'bar', data: rows.map(row => stackedPercentValue(row.detractors)).reverse(), barWidth: 14, label: { show: true, position: 'right', formatter: percentLabelFormatter, fontWeight: 900 } }
